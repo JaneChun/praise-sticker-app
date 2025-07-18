@@ -1,5 +1,6 @@
+import { getChallengeProgress } from '@/services';
 import { Entypo, FontAwesome6 } from '@expo/vector-icons';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
 import { SIZES } from '../constants/dimensions';
@@ -20,6 +21,17 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 	onLongPress,
 }) => {
 	const { currentView } = useUIStore();
+	const [progressText, setProgressText] = useState('');
+	const [completedDays, setCompletedDays] = useState(0);
+
+	useEffect(() => {
+		if (challenge?.id) {
+			getChallengeProgress(challenge.id).then((progress) => {
+				setProgressText(progress.progressText);
+				setCompletedDays(progress.completedDays);
+			});
+		}
+	}, [challenge]);
 
 	if (isNew) {
 		return (
@@ -35,9 +47,6 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 			</TouchableOpacity>
 		);
 	}
-
-	const stickerCount = 8;
-	const progressText = `${stickerCount} / 30`;
 
 	return (
 		<TouchableOpacity
@@ -55,14 +64,14 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 				</View>
 			) : (
 				<View style={styles.miniGrid}>
-					{Array(30)
+					{Array(Math.min(challenge?.days || 30, 30))
 						.fill(null)
 						.map((_, index) => (
 							<View
 								key={index}
 								style={[
 									styles.miniDot,
-									index < stickerCount && styles.miniDotFilled,
+									index < completedDays && styles.miniDotFilled,
 								]}
 							/>
 						))}
@@ -126,8 +135,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		width: SIZES.miniGrid,
-		justifyContent: 'space-between',
-		gap: 1,
+		gap: 2,
 	},
 	miniDot: {
 		width: SIZES.miniDot,

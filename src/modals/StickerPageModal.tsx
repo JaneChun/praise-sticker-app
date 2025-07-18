@@ -32,7 +32,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	currentChallenge,
 }) => {
 	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } =
-		useStickerPage(currentChallenge?.id);
+		useStickerPage(currentChallenge?.id, currentChallenge?.days);
 	const { stickerPacks } = useStickers();
 	const { showCelebration } = useCelebration();
 
@@ -376,18 +376,18 @@ const styles = StyleSheet.create({
 	},
 	stickerBoard: {
 		flex: 1,
-		padding: 20,
 	},
 	stickerBoardContent: {
-		flex: 1,
-		justifyContent: 'center',
+		flexGrow: 1,
 		alignItems: 'center',
+		paddingHorizontal: 24,
+		paddingVertical: 32,
 	},
 	stickerGrid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
-		justifyContent: 'space-between',
 		maxWidth: SIZES.stickerGrid,
+		gap: 8,
 	},
 	errorText: {
 		fontSize: 12,

@@ -70,7 +70,7 @@ export const updateChallenge = async (
 
 export const deleteChallenge = async (challengeId: string): Promise<void> => {
 	try {
-		await db.runAsync('DELETE challenges WHERE id = ?', [challengeId]);
+		await db.runAsync('DELETE FROM challenges WHERE id = ?', [challengeId]);
 	} catch (error) {
 		throw error;
 	}

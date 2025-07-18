@@ -3,19 +3,22 @@ import * as stickerLogService from '../services/stickerLogService';
 import * as stickerService from '../services/stickerService';
 import { StickerGridItem } from '../types';
 
-export const useStickerPage = (challengeId?: string) => {
+export const useStickerPage = (
+	challengeId?: string,
+	challengeDays: number = 30,
+) => {
 	const [stickerGrid, setStickerGrid] = useState<Array<StickerGridItem | null>>(
-		Array(30).fill(null),
+		Array(challengeDays).fill(null),
 	);
 	const [stickerCount, setStickerCount] = useState<number>(0);
 	const [canAddSticker, setCanAddSticker] = useState(true);
 
-	// challengeId가 변경될 때 stickerGrid 로드
+	// challengeId 또는 challengeDays가 변경될 때 stickerGrid 로드
 	useEffect(() => {
 		if (challengeId) {
 			loadStickerGrid();
 		}
-	}, [challengeId]);
+	}, [challengeId, challengeDays]);
 
 	// stickerGrid가 변경될 때마다 stickerCount, canAddSticker 재계산
 	useEffect(() => {
@@ -28,9 +31,9 @@ export const useStickerPage = (challengeId?: string) => {
 			const logs = await stickerLogService.getStickerLogsByChallengeId(
 				challengeId!,
 			);
-			const newGrid = Array(30).fill(null);
+			const newGrid = Array(challengeDays).fill(null);
 
-			for (let i = 0; i < logs.length && i < 30; i++) {
+			for (let i = 0; i < logs.length && i < challengeDays; i++) {
 				const log = logs[i];
 				const sticker = await stickerService.getStickerById(log.stickerId);
 				if (sticker) {
