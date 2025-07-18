@@ -57,7 +57,7 @@ export const getStickerLogsByDate = async (
 export const getAllStickerLogs = async (): Promise<DailyStickerLog[]> => {
 	try {
 		const rows = await db.getAllAsync(
-			'SELECT * FROM daily_sticker_logs ORDER BY date DESC',
+			'SELECT * FROM daily_sticker_logs ORDER BY date ASC',
 		);
 		return rows.map((row: any) => ({
 			id: row.id,
@@ -76,7 +76,7 @@ export const getStickerLogsByChallengeId = async (
 ): Promise<DailyStickerLog[]> => {
 	try {
 		const rows = await db.getAllAsync(
-			'SELECT * FROM daily_sticker_logs WHERE challenge_id = ? ORDER BY date DESC',
+			'SELECT * FROM daily_sticker_logs WHERE challenge_id = ? ORDER BY date ASC',
 			[challengeId],
 		);
 		return rows.map((row: any) => ({
