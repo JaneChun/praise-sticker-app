@@ -122,3 +122,42 @@ export const removeStickerLog = async (
 		throw error;
 	}
 };
+
+export const removeExcessStickerLogs = async (
+	challengeId: string,
+	maxDays: number,
+): Promise<number> => {
+	try {
+		// 현재 챌린지의 모든 스티커 로그를 날짜순으로 가져오기
+		const logs = await db.getAllAsync(
+			'SELECT * FROM daily_sticker_logs WHERE challenge_id = ? ORDER BY date ASC',
+			[challengeId],
+		);
+
+		// 초과하는 로그들 삭제
+		if (logs.length > maxDays) {
+			const excessLogs = logs.slice(maxDays);
+			const excessIds = excessLogs.map((log: any) => log.id);
+
+			if (excessIds.length > 0) {
+				const placeholders = excessIds.map(() => '?').join(',');
+				await db.runAsync(
+					`DELETE FROM daily_sticker_logs WHERE id IN (${placeholders})`,
+					excessIds,
+				);
+
+				// 총 스티커 수 업데이트
+				await db.runAsync(
+					'UPDATE user_stats SET total_stickers = total_stickers - ?, updated_at = CURRENT_TIMESTAMP',
+					[excessIds.length],
+				);
+
+				return excessIds.length;
+			}
+		}
+
+		return 0;
+	} catch (error) {
+		throw error;
+	}
+};

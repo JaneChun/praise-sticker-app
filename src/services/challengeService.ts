@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Challenge, ChallengeProgress } from '../types';
 import { db } from './databaseService';
+import * as stickerLogService from './stickerLogService';
 
 export const getChallengeById = async (id: string) => {
 	const query = `SELECT * FROM challenges WHERE id = ?`;
@@ -59,10 +60,24 @@ export const updateChallenge = async (
 	reward: string | null = null,
 ): Promise<void> => {
 	try {
+		// 현재 챌린지 정보 가져오기
+		const currentChallenge = await getChallengeById(challengeId);
+		if (!currentChallenge) {
+			throw new Error('Challenge not found');
+		}
+
+		const currentDays = (currentChallenge as any).days;
+
+		// 챌린지 업데이트
 		await db.runAsync(
 			'UPDATE challenges SET title = ?, icon = ?, days = ?, reward = ? WHERE id = ?',
 			[title, icon, days, reward, challengeId],
 		);
+
+		// 일수가 줄어든 경우 초과 스티커 로그 삭제
+		if (days < currentDays) {
+			await stickerLogService.removeExcessStickerLogs(challengeId, days);
+		}
 	} catch (error) {
 		throw error;
 	}
