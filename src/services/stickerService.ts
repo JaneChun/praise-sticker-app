@@ -43,12 +43,13 @@ export const getStickerPacks = async (): Promise<StickerPack[]> => {
 	}
 };
 
-export const getStickerById = async (stickerId: string): Promise<Sticker | null> => {
+export const getStickerById = async (
+	stickerId: string,
+): Promise<Sticker | null> => {
 	try {
-		const row = await db.getFirstAsync(
-			'SELECT * FROM stickers WHERE id = ?',
-			[stickerId],
-		);
+		const row = await db.getFirstAsync('SELECT * FROM stickers WHERE id = ?', [
+			stickerId,
+		]);
 		if (!row) {
 			return null;
 		}

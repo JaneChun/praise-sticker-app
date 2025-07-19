@@ -34,7 +34,6 @@ const StickerPackListModal: FC<StickerPackListModalProps> = ({
 	// 스티커 관련 상태 및 훅
 	const { stickerPacks, isLoading, error } = useStickers();
 
-
 	const handlePackSelect = (pack: StickerPackWithStickers) => {
 		setActiveStickerPack(pack);
 	};

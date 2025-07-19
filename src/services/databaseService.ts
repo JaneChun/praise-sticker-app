@@ -1,3 +1,4 @@
+import { COLOR_PACKS } from '@/constants/data';
 import * as SQLite from 'expo-sqlite';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -112,8 +113,8 @@ export const resetDatabase = async (): Promise<void> => {
 
 		for (const table of tablesResult as any) {
 			await db.execAsync(`DROP TABLE IF EXISTS ${table.name}`);
-			console.log(`Dropped table ${table.name}`);
 		}
+		console.log(`Dropped table`);
 
 		// 테이블 재생성
 		await initDatabase();
@@ -231,36 +232,23 @@ const insertDefaultStickerPackAndStickers = async (): Promise<void> => {
 		}
 
 		// 스티커팩 생성
-		const packId = uuidv4();
-		await db.runAsync(
-			`INSERT INTO sticker_packs (id, name, description, is_premium, is_custom, price, is_active, created_at)
-				VALUES (?, ?, ?, 0, 0, 0, 1, CURRENT_TIMESTAMP)`,
-			[packId, '기본 컬러팩', '기본 색상 스티커 팩'],
-		);
-
-		const colors = [
-			'#FADADD',
-			'#FFE4E1',
-			'#FFB6C1',
-			'#FFBCD9',
-			'#FFCBDB',
-			'#FFDDE2',
-			'#EDCDC2',
-			'#FFDAB9',
-			'#FFE5B4',
-			'#FBCEB1',
-			'#F8B878',
-			'#F7E7CE',
-		];
-
-		// 스티커 생성
-		for (const color of colors) {
-			const stickerId = uuidv4();
+		for (const [i, colors] of COLOR_PACKS.entries()) {
+			const packId = uuidv4();
 			await db.runAsync(
-				`INSERT INTO stickers (id, pack_id, name, type, data)
-					VALUES (?, ?, ?, ?, ?)`,
-				[stickerId, packId, color, 'color', color],
+				`INSERT INTO sticker_packs (id, name, description, thumbnail_uri, is_premium, is_custom, price, is_active, created_at)
+				VALUES (?, ?, ?, 0, 0, 0, 0, 1, CURRENT_TIMESTAMP)`,
+				[packId, `기본 컬러팩 ${i + 1}`, '기본 색상 스티커 팩'],
 			);
+
+			// 스티커 생성
+			for (const [j, color] of colors.entries()) {
+				const stickerId = uuidv4();
+				await db.runAsync(
+					`INSERT INTO stickers (id, pack_id, name, type, data)
+					VALUES (?, ?, ?, ?, ?)`,
+					[stickerId, packId, `color_${j + 1}`, 'color', color],
+				);
+			}
 		}
 
 		console.log('기본 스티커팩과 스티커가 성공적으로 추가되었습니다.');

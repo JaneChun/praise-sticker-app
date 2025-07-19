@@ -139,7 +139,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 
 				<ScrollView style={styles.createForm}>
 					<View style={styles.formSection}>
-						<Text style={styles.formLabel}>어떤 작은 목표를 세워볼까요? *</Text>
+						<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
 						<TextInput
 							style={styles.formInput}
 							placeholder='예: 매일 물 2L 마시기'
@@ -148,6 +148,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 							onChangeText={(text) => setChallengeTitle(text)}
 							maxLength={20}
 						/>
+						<Text style={styles.formHint}>작은 목표라도 좋아요</Text>
 					</View>
 
 					<View style={styles.formSection}>
@@ -314,6 +315,7 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: COLORS.text.light,
 		marginTop: 8,
+		marginLeft: 6,
 		lineHeight: 20,
 	},
 	daysSelector: {

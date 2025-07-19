@@ -90,11 +90,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginBottom: 16,
-		elevation: 4,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 8,
 	},
 	newChallenge: {
 		backgroundColor: COLORS.background.secondary,
@@ -104,6 +99,11 @@ const styles = StyleSheet.create({
 	},
 	challengeExisting: {
 		backgroundColor: COLORS.background.primary,
+		elevation: 4,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 8,
 	},
 	challengeIcon: {
 		fontSize: 32,
