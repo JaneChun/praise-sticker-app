@@ -141,7 +141,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 						_gestureState.y0 - 30,
 						selectedSticker,
 					);
-				}, 300);
+				}, 500);
 			}
 		},
 		onPanResponderMove: (_, _gestureState) => {

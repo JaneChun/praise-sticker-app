@@ -2,7 +2,7 @@ export const COLORS = {
 	// 기본 색상
 	primary: '#667eea',
 	secondary: '#f88da0',
-	success: '#fcd5ce',
+	tertiary: '#fcd5ce',
 	warning: '#ffd166',
 	error: '#ff6b6b',
 

@@ -1,108 +1,151 @@
-import { FC, useEffect } from 'react';
+import StickerRenderer from '@/components/StickerRenderer';
+import * as calendarService from '@/services/calendarService';
+import * as challengeService from '@/services/challengeService';
+import * as stickerService from '@/services/stickerService';
+import { useUIStore } from '@/store';
+import { FC, useCallback, useEffect, useState } from 'react';
 import {
 	Modal,
 	ScrollView,
 	StyleSheet,
 	Text,
-	TouchableOpacity,
+	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
 import { COLORS } from '../constants/colors';
-import { useStickerDatabase } from '../hooks/useStickers';
-import { DayDetailModalProps } from '../types';
+import {
+	ChallengeWithStickers,
+	DayDetailModalProps,
+	GetDayDetailResponse,
+} from '../types';
 
-const DayDetailModal: FC<DayDetailModalProps> = ({
-	visible,
-	setVisible,
-	selectedDay,
-}) => {
-	const { dayDetailData, loadDayDetail } = useStickerDatabase();
+const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate }) => {
+	const { dayDetailVisible, setDayDetailVisible } = useUIStore();
+
+	const [dayDetailData, setDayDetailData] =
+		useState<GetDayDetailResponse | null>(null);
+
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (visible && selectedDay) {
-			const currentDate = new Date();
-			const year = currentDate.getFullYear();
-			const month = currentDate.getMonth() + 1;
-			const dateString = `${year}-${month
-				.toString()
-				.padStart(2, '0')}-${selectedDay.toString().padStart(2, '0')}`;
-
-			loadDayDetail({ date: dateString });
+		if (dayDetailVisible && selectedDate) {
+			loadDayDetail(selectedDate);
 		}
-	}, [visible, selectedDay, loadDayDetail]);
+	}, [dayDetailVisible, selectedDate]);
+
+	const loadDayDetail = useCallback(async (date: string) => {
+		try {
+			setIsLoading(true);
+			setError(null);
+
+			const logs = await calendarService.getCalendarDetailsByDate(date);
+
+			// 챌린지별로 스티커 로그를 그룹화
+			const challengeGroups: Record<string, any> = {};
+
+			for (const log of logs) {
+				if (!challengeGroups[log.challengeId]) {
+					// 챌린지 정보 가져오기
+					const challenge = (await challengeService.getChallengeById(
+						log.challengeId,
+					)) as any;
+					challengeGroups[log.challengeId] = {
+						challengeId: log.challengeId,
+						challengeTitle: challenge?.title || '챌린지',
+						challengeIcon: challenge?.icon || '🎯',
+						stickers: [],
+					};
+				}
+
+				// 스티커 정보 가져오기
+				const sticker = await stickerService.getStickerById(log.stickerId);
+				if (sticker) {
+					challengeGroups[log.challengeId].stickers.push(sticker);
+				}
+			}
+
+			const challengeWithStickers = Object.values(
+				challengeGroups,
+			) as ChallengeWithStickers[];
+
+			const dayDetail: GetDayDetailResponse = {
+				challengeWithStickers,
+				totalStickers: logs.length,
+			};
+			setDayDetailData(dayDetail);
+		} catch (e) {
+			setError(e instanceof Error ? e.message : 'Unknown error');
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
 	const totalStickers = dayDetailData?.totalStickers || 0;
 
+	const onClose = useCallback(() => {
+		setDayDetailVisible(false);
+		setDayDetailData(null);
+		setError(null);
+	}, [setDayDetailVisible]);
+
 	return (
-		<Modal visible={visible} transparent animationType='slide'>
-			<View style={styles.dayDetailOverlay}>
-				<View style={styles.dayDetailContent}>
-					<TouchableOpacity
-						style={styles.closeDayDetail}
-						onPress={() => setVisible(false)}
-					>
-						<Text style={styles.closeDayDetailText}>×</Text>
-					</TouchableOpacity>
-
-					<View style={styles.dayDetailHeader}>
-						<Text style={styles.dayDetailDate}>7월 {selectedDay || 0}일</Text>
-						<Text style={styles.dayDetailCount}>
-							총 {totalStickers}개의 칭찬 스티커
-						</Text>
-					</View>
-
-					<ScrollView style={styles.stickersByChallenge}>
-						{totalStickers === 0 ? (
-							<View style={styles.emptyDay}>
-								<Text style={styles.emptyDayIcon}>😴</Text>
-								<Text style={styles.emptyDayText}>이날은 쉬었네요</Text>
-								<Text style={styles.emptyDaySubtext}>
-									가끔 쉬는 것도 중요해요!
+		<Modal visible={dayDetailVisible} transparent animationType='fade'>
+			<TouchableWithoutFeedback onPress={onClose}>
+				<View style={styles.overlay}>
+					<TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+						<View style={styles.dayDetailContent}>
+							<View style={styles.dayDetailHeader}>
+								<Text style={styles.dayDetailDate}>
+									{selectedDate &&
+										new Date(selectedDate).toLocaleDateString('ko-KR', {
+											month: 'long',
+											day: 'numeric',
+										})}
+								</Text>
+								<Text style={styles.dayDetailCount}>
+									총 {totalStickers}개의 칭찬 스티커
 								</Text>
 							</View>
-						) : (
-							dayDetailData?.challengeStickers.map((challenge) => (
-								<View
-									key={challenge.challengeId}
-									style={styles.challengeSection}
-								>
-									<View style={styles.challengeInfo}>
-										<Text style={styles.challengeEmoji}>
-											{challenge.challengeIcon || '🎯'}
-										</Text>
-										<Text style={styles.challengeTitle}>
-											{challenge.challengeTitle}
-										</Text>
-									</View>
-									<View style={styles.stickersList}>
-										{challenge.stickers.map((sticker, index) => (
-											<View key={index} style={styles.stickerBadge}>
-												<View
-													style={[
-														styles.stickerBadgeColor,
-														{ backgroundColor: sticker.color || '#E8E8E8' },
-													]}
+
+							<ScrollView style={styles.stickersByChallenge}>
+								{dayDetailData?.challengeWithStickers.map((challenge) => (
+									<View
+										key={challenge.challengeId}
+										style={styles.challengeSection}
+									>
+										<View style={styles.challengeInfo}>
+											<Text style={styles.challengeEmoji}>
+												{challenge.challengeIcon || '🎯'}
+											</Text>
+											<Text style={styles.challengeTitle}>
+												{challenge.challengeTitle}
+											</Text>
+										</View>
+										<View style={styles.stickersList}>
+											{challenge.stickers.map((sticker, index) => (
+												<StickerRenderer
+													key={sticker.id}
+													sticker={sticker}
+													size={30}
 												/>
-												<Text style={styles.stickerBadgeText}>
-													{sticker.name}
-												</Text>
-											</View>
-										))}
+											))}
+										</View>
 									</View>
-								</View>
-							))
-						)}
-					</ScrollView>
+								))}
+							</ScrollView>
+						</View>
+					</TouchableWithoutFeedback>
 				</View>
-			</View>
+			</TouchableWithoutFeedback>
 		</Modal>
 	);
 };
 
 const styles = StyleSheet.create({
-	dayDetailOverlay: {
+	overlay: {
 		flex: 1,
-		backgroundColor: COLORS.background.overlay,
+		backgroundColor: COLORS.background.opacity,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},

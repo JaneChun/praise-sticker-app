@@ -16,13 +16,13 @@ export const getUserStats = async (): Promise<UserStats> => {
 		}
 
 		return {
-			id: row.id,
-			totalStickers: row.total_stickers,
-			currentStreak: row.current_streak,
-			longestStreak: row.longest_streak,
-			totalChallenges: row.total_challenges,
-			updatedAt: row.updated_at,
-		};
+			id: (row as any).id,
+			totalStickers: (row as any).total_stickers,
+			currentStreak: (row as any).current_streak,
+			longestStreak: (row as any).longest_streak,
+			totalChallenges: (row as any).total_challenges,
+			updatedAt: (row as any).updated_at,
+		} as UserStats;
 	} catch (error) {
 		throw error;
 	}

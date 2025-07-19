@@ -123,6 +123,27 @@ export const removeStickerLog = async (
 	}
 };
 
+export const getStickerLogsByRange = async (
+	startDate: string,
+	endDate: string,
+): Promise<DailyStickerLog[]> => {
+	try {
+		const rows = await db.getAllAsync(
+			'SELECT * FROM daily_sticker_logs WHERE date >= ? AND date <= ? ORDER BY date ASC',
+			[startDate, endDate],
+		);
+		return rows.map((row: any) => ({
+			id: row.id,
+			challengeId: row.challenge_id,
+			stickerId: row.sticker_id,
+			date: row.date,
+			createdAt: row.created_at,
+		}));
+	} catch (error) {
+		throw error;
+	}
+};
+
 export const removeExcessStickerLogs = async (
 	challengeId: string,
 	maxDays: number,

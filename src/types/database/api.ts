@@ -1,4 +1,4 @@
-import type { DailyStickerLog, Sticker, StickerPack } from './entities';
+import type { Sticker, StickerPack } from './entities';
 
 // Challenge API 타입
 export interface ChallengeProgress {
@@ -8,10 +8,7 @@ export interface ChallengeProgress {
 }
 
 // Calendar API 타입
-export interface CalendarDayData {
-	stickerCount: number;
-	hasStickers: boolean;
-}
+export type CalendarDayData = Record<string, number>;
 
 export interface GetCalendarDataParams {
 	year: number;
@@ -19,17 +16,19 @@ export interface GetCalendarDataParams {
 }
 
 export interface GetCalendarDataResponse {
-	calendarData: Record<string, CalendarDayData>;
-}
-
-export interface GetDayDetailParams {
-	date: string;
+	calendarData: CalendarDayData;
 }
 
 export interface GetDayDetailResponse {
-	date: string;
-	logs: DailyStickerLog[];
+	challengeWithStickers: ChallengeWithStickers[];
 	totalStickers: number;
+}
+
+export interface ChallengeWithStickers {
+	challengeId: string;
+	challengeTitle: string;
+	challengeIcon: string;
+	stickers: Sticker[];
 }
 
 // Sticker API 타입

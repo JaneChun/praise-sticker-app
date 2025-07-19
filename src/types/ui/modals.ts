@@ -30,9 +30,7 @@ export interface CelebrationModalProps {
 
 // 일별 상세 모달 타입
 export interface DayDetailModalProps {
-	visible: boolean;
-	setVisible: (visible: boolean) => void;
-	selectedDay: number | null;
+	selectedDate: string;
 }
 
 // 도전 생성 모달 타입

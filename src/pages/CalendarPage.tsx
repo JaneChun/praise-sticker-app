@@ -1,61 +1,35 @@
+import { useCalendar } from '@/hooks/useCalendar';
+import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useEffect, useMemo } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { ColorValue, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/colors';
-import { useStickerDatabase } from '../hooks/useStickers';
+import DayDetailModal from '../modals/DayDetailModal';
+import { useUIStore } from '../store/useUIStore';
 import { CalendarPageProps } from '../types';
 
 const CalendarPage: FC<CalendarPageProps> = ({ showDayDetail }) => {
+	const { weeklyStickerCnt, streakCnt, markedDates, refresh } = useCalendar();
+	const { setDayDetailVisible } = useUIStore();
+
 	const insets = useSafeAreaInsets();
-	const { calendarData, loadCalendarData } = useStickerDatabase();
+	const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-	useEffect(() => {
-		const currentDate = new Date();
-		loadCalendarData({
-			year: currentDate.getFullYear(),
-			month: currentDate.getMonth() + 1,
-		});
-	}, [loadCalendarData]);
-
-	const markedDates = useMemo(() => {
-		const marked: { [key: string]: any } = {};
-		const today = new Date();
-		const todayString = today.toISOString().split('T')[0];
-
-		// 오늘 날짜 마킹
-		marked[todayString] = {
-			selected: true,
-			selectedColor: COLORS.secondary,
-		};
-
-		// 스티커가 있는 날짜들 마킹
-		Object.values(calendarData).forEach((dayData) => {
-			const dateString = dayData.date;
-
-			if (dateString === todayString) {
-				marked[dateString] = {
-					...marked[dateString],
-					dotColor: COLORS.success,
-					marked: true,
-				};
-			} else {
-				marked[dateString] = {
-					dotColor: COLORS.success,
-					marked: true,
-				};
-			}
-		});
-
-		return marked;
-	}, [calendarData]);
+	useFocusEffect(
+		useCallback(() => {
+			refresh();
+		}, [refresh]),
+	);
 
 	const onDayPress = (day: any): void => {
-		const dateString = day.dateString;
-		const hasStickers = calendarData[dateString]?.stickerCount > 0;
+		const dateString = day.dateString; // 'YYYY-MM-DD'
+		const hasStickers = markedDates[dateString];
+
 		if (hasStickers) {
-			showDayDetail(parseInt(day.dateString.split('-')[2]));
+			setSelectedDate(day.dateString); // 'YYYY-MM-DD'
+			setDayDetailVisible(true);
 		}
 	};
 
@@ -73,25 +47,20 @@ const CalendarPage: FC<CalendarPageProps> = ({ showDayDetail }) => {
 			<View style={styles.statsSection}>
 				<View style={styles.statsGrid}>
 					<View style={styles.statItem}>
-						<Text style={styles.statNumber}>
-							{Object.values(calendarData).reduce(
-								(total, day) => total + day.stickerCount,
-								0,
-							)}
-						</Text>
-						<Text style={styles.statLabel}>이번달 칭찬스티커</Text>
+						<Text style={styles.statNumber}>{weeklyStickerCnt}</Text>
+						<Text style={styles.statLabel}>이번주 모은 스티커</Text>
 					</View>
+
 					<View style={styles.statItem}>
-						<Text style={styles.statNumber}>
-							{Object.keys(calendarData).length}
-						</Text>
-						<Text style={styles.statLabel}>활동 일수</Text>
+						<Text style={styles.statNumber}>{streakCnt}</Text>
+						<Text style={styles.statLabel}>연속 일수</Text>
 					</View>
 				</View>
 			</View>
 
 			<View style={styles.calendarContainer}>
 				<Calendar
+					markingType='period'
 					markedDates={markedDates}
 					onDayPress={onDayPress}
 					theme={{
@@ -100,10 +69,11 @@ const CalendarPage: FC<CalendarPageProps> = ({ showDayDetail }) => {
 						textSectionTitleColor: COLORS.text.secondary,
 						selectedDayBackgroundColor: COLORS.secondary,
 						selectedDayTextColor: COLORS.text.white,
-						todayTextColor: COLORS.secondary,
+						todayTextColor: COLORS.text.white,
+						todayBackgroundColor: COLORS.primary,
 						dayTextColor: COLORS.text.primary,
 						textDisabledColor: COLORS.text.disabled,
-						dotColor: COLORS.success,
+						dotColor: COLORS.tertiary,
 						selectedDotColor: COLORS.text.white,
 						arrowColor: COLORS.secondary,
 						monthTextColor: COLORS.text.primary,
@@ -118,6 +88,8 @@ const CalendarPage: FC<CalendarPageProps> = ({ showDayDetail }) => {
 					style={styles.calendar}
 				/>
 			</View>
+
+			<DayDetailModal selectedDate={selectedDate} />
 		</ScrollView>
 	);
 };

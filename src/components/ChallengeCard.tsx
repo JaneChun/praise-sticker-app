@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
 		marginBottom: 2,
 	},
 	miniDotFilled: {
-		backgroundColor: COLORS.success,
+		backgroundColor: COLORS.tertiary,
 	},
 });
 
