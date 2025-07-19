@@ -1,10 +1,8 @@
-import { resetDatabase } from '@/services';
 import { Entypo } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useEffect, useState } from 'react';
 import {
 	Alert,
-	Button,
 	ColorValue,
 	ScrollView,
 	StyleSheet,
@@ -149,8 +147,6 @@ const ChallengesPage: FC = () => {
 					))}
 				</View>
 			</ScrollView>
-
-			<Button title='reset db' onPress={resetDatabase} />
 
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity

@@ -1,14 +1,34 @@
+import ParticleEffect from '@/components/ParticleEffect';
 import { useCelebration } from '@/hooks/useCelebration';
 import { useUIStore } from '@/store';
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
+import { FINAL_MESSAGES } from '../constants/data';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
 	const { celebrationVisible } = useUIStore();
+	const [showParticleEffect, setShowParticleEffect] = useState(false);
+
+	// 축하 모달이 열릴 때 파티클 효과 실행
+	useEffect(() => {
+		if (celebrationVisible && celebrationData) {
+			// 최종 완료 메시지인 경우에만 파티클 효과 실행
+			const isFinalMessage = FINAL_MESSAGES.some(
+				(message) => message.title === celebrationData.title,
+			);
+			setShowParticleEffect(isFinalMessage);
+		} else {
+			setShowParticleEffect(false);
+		}
+	}, [celebrationVisible, celebrationData]);
 
 	const handleClose = () => {
+		// 애니메이션이 진행 중이면 닫기 금지
+		if (showParticleEffect) return;
+
+		setShowParticleEffect(false);
 		clearCelebration();
 	};
 
@@ -30,14 +50,22 @@ const CelebrationModal: FC = ({}) => {
 					<Text style={styles.celebrationDescription}>
 						{celebrationData?.description}
 					</Text>
-					<TouchableOpacity
-						style={styles.celebrationButton}
-						onPress={handleClose}
-					>
-						<Text style={styles.celebrationButtonText}>계속하기</Text>
-					</TouchableOpacity>
+					{!showParticleEffect && (
+						<TouchableOpacity
+							style={styles.celebrationButton}
+							onPress={handleClose}
+						>
+							<Text style={styles.celebrationButtonText}>계속하기</Text>
+						</TouchableOpacity>
+					)}
 				</View>
 			</View>
+
+			{/* 파티클 효과 */}
+			<ParticleEffect
+				showParticleEffect={showParticleEffect}
+				onComplete={() => setShowParticleEffect(false)}
+			/>
 		</Modal>
 	);
 };
