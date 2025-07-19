@@ -1,7 +1,8 @@
 import { useCelebrationStore } from '@/store/useCelebrationStore';
 import {
 	CELEBRATION_MESSAGES,
-	DEFAULT_CELEBRATIONS,
+	DEFAULT_MESSAGES,
+	FINAL_MESSAGES,
 	MILESTONES,
 } from '../constants/data';
 import { useUIStore } from '../store';
@@ -9,7 +10,7 @@ import { CelebrationMessage } from '../types';
 
 interface UseCelebrationReturn {
 	celebrationData: CelebrationMessage | null;
-	showCelebration: (count: number) => void;
+	showCelebration: (count: number, totalDays: number) => void;
 	clearCelebration: () => void;
 }
 
@@ -17,26 +18,27 @@ export const useCelebration = (): UseCelebrationReturn => {
 	const { celebrationData, setCelebrationData } = useCelebrationStore();
 	const { setCelebrationVisible } = useUIStore();
 
-	const showCelebration = (count: number): void => {
-		// 마일스톤에 해당하면 해당하는 축하 메세지, 아니면 기본 메세지
-		const milestoneIndex = MILESTONES.indexOf(count);
-
+	const showCelebration = (count: number, totalDays: number): void => {
 		let celebrationInfo: CelebrationMessage;
 
-		if (milestoneIndex >= 0) {
-			// 마일스톤에 해당하는 경우 - 특별한 축하 메시지
+		// 1. 스티커를 다 모은 경우 (최종 메시지)
+		if (count === totalDays) {
 			celebrationInfo =
-				CELEBRATION_MESSAGES[milestoneIndex] ||
-				CELEBRATION_MESSAGES[CELEBRATION_MESSAGES.length - 1];
-		} else {
-			// 마일스톤이 아닌 경우 - 기본 메시지 중 랜덤 선택
-			celebrationInfo =
-				DEFAULT_CELEBRATIONS[
-					Math.floor(Math.random() * DEFAULT_CELEBRATIONS.length)
-				];
+				FINAL_MESSAGES[Math.floor(Math.random() * FINAL_MESSAGES.length)];
 		}
+		// 2. 기본 마일스톤 (1, 3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 100)
+		else {
+			const milestoneIndex = MILESTONES.indexOf(count);
 
-		// TODO: 최종 메세지와 파티클 효과 표시
+			if (milestoneIndex >= 0) {
+				// 마일스톤에 해당하는 경우 - 특별한 축하 메시지
+				celebrationInfo = CELEBRATION_MESSAGES[milestoneIndex];
+			} else {
+				// 마일스톤이 아닌 경우 - 기본 메시지 중 랜덤 선택
+				celebrationInfo =
+					DEFAULT_MESSAGES[Math.floor(Math.random() * DEFAULT_MESSAGES.length)];
+			}
+		}
 
 		setCelebrationData(celebrationInfo);
 		setCelebrationVisible(true);

@@ -101,7 +101,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			}
 
 			// 축하 메세지 설정
-			showCelebration(stickerCount + 1);
+			showCelebration(stickerCount + 1, currentChallenge?.days || 30);
 		} catch (error) {
 			console.error('Error adding sticker:', error);
 		}

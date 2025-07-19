@@ -6,7 +6,7 @@ import { COLORS } from '../constants/colors';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
-	const { celebrationVisible, setCelebrationVisible } = useUIStore();
+	const { celebrationVisible } = useUIStore();
 
 	const handleClose = () => {
 		clearCelebration();

@@ -26,9 +26,11 @@ export const CHALLENGE_ICONS: string[] = [
 export const CHALLENGE_DURATIONS: number[] = [7, 14, 21, 30];
 
 // 마일스톤 데이터
-export const MILESTONES: number[] = [1, 3, 5, 7, 10, 15, 20, 25, 30];
+export const MILESTONES: number[] = [
+	1, 3, 5, 10, 20, 30, 40, 50, 60, 70, 80, 100,
+];
 
-export const DEFAULT_CELEBRATIONS: CelebrationMessage[] = [
+export const DEFAULT_MESSAGES: CelebrationMessage[] = [
 	{
 		title: '또 하나 완료!',
 		// subtitle: '+5 XP',
@@ -84,20 +86,9 @@ export const CELEBRATION_MESSAGES: CelebrationMessage[] = [
 		icon: '⭐',
 	},
 	{
-		title: '7개 달성!',
-		// subtitle: '+25 XP',
-		description: '7개의 스티커를 모았어요\n이제 진짜 습관이 되어가네요 🔥',
-		icon: '🏆',
-	},
-	{
 		title: '10개 달성!',
 		description: '10개의 성취!\n쌓아온 결과가 자랑스러워요 🎉',
 		icon: '🎖️',
-	},
-	{
-		title: '15개 달성!',
-		description: '절반을 훌쩍 넘었어요\n포기하지 않은 당신이 멋져요 💯',
-		icon: '🥇',
 	},
 	{
 		title: '20개 달성!',
@@ -105,20 +96,68 @@ export const CELEBRATION_MESSAGES: CelebrationMessage[] = [
 		icon: '👑',
 	},
 	{
-		title: '25개 달성!',
-		description: '조금씩 쌓아온 노력이\n이제 눈에 보이기 시작해요 🌟',
+		title: '30개 달성!',
+		description: '꾸준함이 빛나고 있어요\n여기까지 온 당신, 정말 대단해요 🌟',
+		icon: '🚀',
+	},
+	{
+		title: '40개 달성!',
+		description: '성장의 속도가 붙었어요\n멋진 흐름을 이어가고 있어요 💫',
 		icon: '📈',
 	},
 	{
-		title: '30개 달성!',
+		title: '50개 달성!',
+		description: '50개의 스티커가 쌓였어요\n이제 당신만의 페이스가 느껴져요 🏅',
+		icon: '🥇',
+	},
+	{
+		title: '60개 달성!',
+		description: '꾸준함은 결국 힘이 돼요\n스스로가 자랑스러울 거예요 💖',
+		icon: '🔥',
+	},
+	{
+		title: '70개 달성!',
 		description:
-			'여기까지 온 당신, 정말 대단해요\n곧 마지막 선물이 기다리고 있어요 🎊',
+			'매일의 노력이 쌓여 든든한 습관이 되어가고 있어요\n계속 멋지게 나아가요 🏆',
 		icon: '🎯',
 	},
 	{
-		title: '최종 달성!',
+		title: '80개 달성!',
+		description: '눈앞에 목표가 보이네요\n마지막까지 함께 달려봐요 🌈',
+		icon: '🎊',
+	},
+	{
+		title: '100개 달성!',
+		description: '이걸 해낸 당신이라면\n앞으로 무엇이든 해낼 수 있어요 🌟',
+		icon: '🏁',
+	},
+];
+
+export const FINAL_MESSAGES = [
+	{
+		title: '목표 달성!',
 		description: '목표 달성!\n자신을 향한 최고의 선물이에요 🎁',
 		icon: '🚀',
+	},
+	{
+		title: '목표 달성!',
+		description: '작은 노력이 모여\n크고 멋진 결과가 되었어요 ✨',
+		icon: '🌟',
+	},
+	{
+		title: '목표 달성!',
+		description: '한 걸음 한 걸음이\n당신을 여기까지 이끌었어요 👣',
+		icon: '🎉',
+	},
+	{
+		title: '목표 달성!',
+		description: '자신에게 보내는\n가장 따뜻한 박수예요 👏',
+		icon: '💖',
+	},
+	{
+		title: '목표 달성!',
+		description: '목표를 향한 여정,\n끝까지 잘 마쳤어요 🎯',
+		icon: '🏁',
 	},
 ];
 
