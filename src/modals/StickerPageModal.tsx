@@ -34,12 +34,16 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } =
 		useStickerPage(currentChallenge?.id, currentChallenge?.days);
 	const { stickerPacks } = useStickers();
-	const { showCelebration } = useCelebration();
+	const { celebrationData, showCelebration } = useCelebration();
 
 	const insets = useSafeAreaInsets();
 	const [selectedSticker, setSelectedSticker] = useState<Sticker | null>(null);
 	const [animationTrigger, setAnimationTrigger] = useState<number | null>(null);
-	const { stickerPackModalVisible, setStickerPackModalVisible } = useUIStore();
+	const {
+		stickerPackModalVisible,
+		setStickerPackModalVisible,
+		setCelebrationVisible,
+	} = useUIStore();
 
 	// 스티커팩이 로드된 후 첫 번째 스티커팩에서 랜덤 스티커 자동 선택
 	useEffect(() => {
@@ -177,6 +181,15 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 		setSelectedSticker(sticker);
 	};
 
+	const handleCloseModal = () => {
+		setVisible(false);
+
+		// celebrationData가 있으면 축하 모달을 표시
+		if (celebrationData) {
+			setCelebrationVisible(true);
+		}
+	};
+
 	return (
 		<Modal
 			visible={visible}
@@ -191,7 +204,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 				>
 					<View style={styles.headerContent}>
 						<View style={styles.buttonsContainer}>
-							<TouchableOpacity onPress={() => setVisible(false)}>
+							<TouchableOpacity onPress={handleCloseModal}>
 								<Ionicons
 									name='chevron-back'
 									size={28}

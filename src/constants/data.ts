@@ -48,7 +48,7 @@ export const DEFAULT_CELEBRATIONS: CelebrationMessage[] = [
 	},
 	{
 		title: '계속해볼까요?',
-		description: '지금처럼만 해도 충분해요\n천천히, 하지만 확실하게 🐢',
+		description: '지금처럼만 해도 충분해요\n중요한건 꾸준함 🐢',
 		icon: '🍀',
 	},
 	{

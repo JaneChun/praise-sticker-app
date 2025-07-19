@@ -22,12 +22,6 @@ export interface CelebrationMessage {
 	icon: string;
 }
 
-export interface CelebrationModalProps {
-	visible: boolean;
-	setVisible: (visible: boolean) => void;
-	celebrationData: CelebrationMessage | null;
-}
-
 // 일별 상세 모달 타입
 export interface DayDetailModalProps {
 	selectedDate: string;

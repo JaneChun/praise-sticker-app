@@ -11,8 +11,8 @@ export const COLORS = {
 	gradients: {
 		primary: ['#667eea', '#764ba2'],
 		secondary: ['#ff9a9e', '#fecfef'],
-		calendar: ['#fcb69f', '#ffecd2'],
-		challenge: ['#a8edea', '#fed6e3'],
+		calendar: ['#fcb69f', '#ffe1ba'],
+		challenge: ['#cfcfcf', '#f5e8ec'],
 	},
 
 	// 텍스트 색상

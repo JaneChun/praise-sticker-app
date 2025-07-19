@@ -6,7 +6,7 @@ interface CelebrationState {
 }
 
 interface CelebrationActions {
-	setCelebrationData: (celebrationData: CelebrationMessage) => void;
+	setCelebrationData: (celebrationData: CelebrationMessage | null) => void;
 }
 
 type CelebrationStore = CelebrationState & CelebrationActions;
@@ -16,6 +16,6 @@ export const useCelebrationStore = create<CelebrationStore>((set) => ({
 	celebrationData: null,
 
 	// 액션
-	setCelebrationData: (celebrationData: CelebrationMessage) =>
+	setCelebrationData: (celebrationData: CelebrationMessage | null) =>
 		set({ celebrationData: celebrationData }),
 }));

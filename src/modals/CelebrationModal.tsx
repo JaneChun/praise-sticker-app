@@ -1,39 +1,19 @@
-import { FC, useEffect, useState } from 'react';
-import {
-	Dimensions,
-	Modal,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native';
+import { useCelebration } from '@/hooks/useCelebration';
+import { useUIStore } from '@/store';
+import { FC } from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
-import { CelebrationModalProps } from '../types';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CelebrationModal: FC = ({}) => {
+	const { celebrationData, clearCelebration } = useCelebration();
+	const { celebrationVisible, setCelebrationVisible } = useUIStore();
 
-const CelebrationModal: FC<CelebrationModalProps> = ({
-	visible,
-	setVisible,
-	celebrationData,
-}) => {
-	const [particles, setParticles] = useState<number[]>([]);
-
-	useEffect(() => {
-		if (visible) {
-			const newParticles = Array.from({ length: 15 }, (_, i) => i);
-			setParticles(newParticles);
-		} else {
-			setParticles([]);
-		}
-	}, [visible]);
-
-	const onParticleComplete = (id: number) => {
-		setParticles((prev) => prev.filter((p) => p !== id));
+	const handleClose = () => {
+		clearCelebration();
 	};
 
 	return (
-		<Modal visible={visible} transparent animationType='fade'>
+		<Modal visible={celebrationVisible} transparent animationType='fade'>
 			<View style={styles.overlay}>
 				<View style={styles.celebrationContent}>
 					<View style={styles.celebrationIcon}>
@@ -52,7 +32,7 @@ const CelebrationModal: FC<CelebrationModalProps> = ({
 					</Text>
 					<TouchableOpacity
 						style={styles.celebrationButton}
-						onPress={() => setVisible(false)}
+						onPress={handleClose}
 					>
 						<Text style={styles.celebrationButtonText}>계속하기</Text>
 					</TouchableOpacity>
@@ -80,7 +60,7 @@ const styles = StyleSheet.create({
 	celebrationIcon: {
 		width: 80,
 		height: 80,
-		backgroundColor: COLORS.primary,
+		backgroundColor: COLORS.background.light,
 		borderRadius: 40,
 		alignItems: 'center',
 		justifyContent: 'center',

@@ -1,4 +1,3 @@
-import { useCelebrationStore } from '@/store/useCelebrationStore';
 import { FC } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { COLORS } from '../constants/colors';
@@ -12,17 +11,13 @@ const ChallengesScreen: FC = () => {
 	const { selectedChallengeId, editingChallengeId, challenges } =
 		useChallengeStore();
 
-	const { celebrationData } = useCelebrationStore();
-
 	const {
 		createChallengeVisible,
 		editChallengeVisible,
 		stickerPageVisible,
-		celebrationVisible,
 		setCreateChallengeVisible,
 		setEditChallengeVisible,
 		setStickerPageVisible,
-		setCelebrationVisible,
 	} = useUIStore();
 
 	return (
@@ -51,11 +46,7 @@ const ChallengesScreen: FC = () => {
 				}
 			/>
 
-			<CelebrationModal
-				visible={celebrationVisible}
-				setVisible={setCelebrationVisible}
-				celebrationData={celebrationData}
-			/>
+			<CelebrationModal />
 		</View>
 	);
 };
