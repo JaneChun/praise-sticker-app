@@ -40,8 +40,8 @@ export const useCelebration = (): UseCelebrationReturn => {
 			}
 		}
 
+		// 모달 표시는 하지 않고 데이터만 저장
 		setCelebrationData(celebrationInfo);
-		setCelebrationVisible(true);
 	};
 
 	const clearCelebration = () => {

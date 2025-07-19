@@ -151,8 +151,6 @@ const ParticleEffect: FC<ParticleEffectProps> = ({
 
 	useEffect(() => {
 		if (showParticleEffect) {
-			// 파티클 효과 시작 시 성공 햅틱
-			// Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 			createRising();
 		}
 	}, [showParticleEffect]);
