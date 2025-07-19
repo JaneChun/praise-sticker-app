@@ -3,7 +3,9 @@ import { FC, useEffect } from 'react';
 import {
 	Alert,
 	ColorValue,
+	KeyboardAvoidingView,
 	Modal,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -118,7 +120,11 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 			presentationStyle='pageSheet'
 			onRequestClose={handleClose}
 		>
-			<View style={styles.container}>
+			<KeyboardAvoidingView
+				style={styles.container}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				keyboardVerticalOffset={insets.bottom}
+			>
 				<LinearGradient
 					colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
 					style={[styles.header, { paddingTop: insets.top }]}
@@ -137,7 +143,10 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 					</Text>
 				</LinearGradient>
 
-				<ScrollView style={styles.createForm}>
+				<ScrollView
+					style={styles.createForm}
+					keyboardShouldPersistTaps='handled'
+				>
 					<View style={styles.formSection}>
 						<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
 						<TextInput
@@ -241,21 +250,21 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 						</Text>
 					</View>
 				</ScrollView>
+			</KeyboardAvoidingView>
 
-				<View style={styles.createActions}>
-					<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
-						<Text style={styles.cancelBtnText}>취소</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
-						onPress={handleSubmit}
-						disabled={!isValid}
-					>
-						<Text style={styles.createBtnText}>
-							{editMode ? '수정 완료' : '미션 시작하기'}
-						</Text>
-					</TouchableOpacity>
-				</View>
+			<View style={styles.createActions}>
+				<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
+					<Text style={styles.cancelBtnText}>취소</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
+					onPress={handleSubmit}
+					disabled={!isValid}
+				>
+					<Text style={styles.createBtnText}>
+						{editMode ? '수정 완료' : '미션 시작하기'}
+					</Text>
+				</TouchableOpacity>
 			</View>
 		</Modal>
 	);
