@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { Animated } from 'react-native';
 import {
 	LayoutEvent,
-	StickerData,
+	Sticker,
 	StickerGridItem,
 	UseStickerDragReturn,
 } from '../types';
@@ -13,9 +13,7 @@ export const useStickerDrag = (
 ): UseStickerDragReturn => {
 	// 드래그 관련 상태
 	const [isDragging, setIsDragging] = useState<boolean>(false);
-	const [draggingSticker, setDraggingSticker] = useState<StickerData | null>(
-		null,
-	);
+	const [draggingSticker, setDraggingSticker] = useState<Sticker | null>(null);
 	const [hoveredSlotIndex, setHoveredSlotIndex] = useState<number | null>(null);
 	const dragValue = useRef(new Animated.ValueXY()).current;
 
@@ -66,11 +64,7 @@ export const useStickerDrag = (
 	};
 
 	// 드래그 시작 핸들러
-	const handleDragStart = (
-		x: number,
-		y: number,
-		sticker: StickerData,
-	): void => {
+	const handleDragStart = (x: number, y: number, sticker: Sticker): void => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
 		setIsDragging(true);
@@ -80,7 +74,7 @@ export const useStickerDrag = (
 
 	// 드래그 종료 핸들러
 	const handleDragEnd = (): void => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
 		setIsDragging(false);
 		setDraggingSticker(null);

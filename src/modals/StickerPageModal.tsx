@@ -15,6 +15,7 @@ import {
 	View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ParticleEffect from '../components/ParticleEffect';
 import StickerRenderer from '../components/StickerRenderer';
 import StickerSlotItem from '../components/StickerSlotItem';
 import { COLORS } from '../constants/colors';
@@ -39,6 +40,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	const insets = useSafeAreaInsets();
 	const [selectedSticker, setSelectedSticker] = useState<Sticker | null>(null);
 	const [animationTrigger, setAnimationTrigger] = useState<number | null>(null);
+	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
 	const {
 		stickerPackModalVisible,
 		setStickerPackModalVisible,
@@ -88,6 +90,15 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			setTimeout(() => {
 				setAnimationTrigger(null);
 			}, 300);
+
+			// 마지막 스티커인지 확인하여 파티클 효과 실행
+			const isLastSticker = stickerCount + 1 === currentChallenge?.days;
+			if (isLastSticker) {
+				// 파티클 효과 트리거
+				setTimeout(() => {
+					setShowParticleEffect(true);
+				}, 300);
+			}
 
 			// 축하 메세지 설정
 			showCelebration(stickerCount + 1);
@@ -300,6 +311,12 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 
 			{/* 스티커팩 선택 모달 */}
 			<StickerPackListModal onStickerSelect={handleSelectSticker} />
+
+			{/* 파티클 효과 */}
+			<ParticleEffect
+				showParticleEffect={showParticleEffect}
+				onComplete={() => setShowParticleEffect(false)}
+			/>
 		</Modal>
 	);
 };
