@@ -5,6 +5,7 @@ export const COLORS = {
 	tertiary: '#fcd5ce',
 	warning: '#ffd166',
 	error: '#ff6b6b',
+	primary_opacity: '#667eea17',
 
 	// 그라데이션 색상
 	gradients: {

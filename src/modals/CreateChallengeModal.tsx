@@ -79,7 +79,6 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 					finalDays,
 					challengeReward.trim() || null,
 				);
-				Alert.alert('수정 완료', `"${challengeTitle}" 미션이 수정되었습니다.`);
 			} else {
 				// 생성 모드
 				await createChallenge(
@@ -87,10 +86,6 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 					selectedIcon,
 					finalDays,
 					challengeReward.trim() || null,
-				);
-				Alert.alert(
-					'생성 완료',
-					`"${challengeTitle}" 미션이 생성되었습니다.\n${finalDays}일 동안 화이팅! 🎯`,
 				);
 			}
 

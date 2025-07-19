@@ -50,9 +50,15 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 		);
 	}
 
+	const isCompleted = completedDays >= (challenge?.days || 0);
+
 	return (
 		<TouchableOpacity
-			style={[styles.challengeCard, styles.challengeExisting]}
+			style={[
+				styles.challengeCard,
+				styles.challengeExisting,
+				isCompleted && styles.challengeCompleted,
+			]}
 			onPress={onPress}
 			onLongPress={onLongPress}
 		>
@@ -61,8 +67,14 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 
 			{currentView === 'card' ? (
 				<View style={styles.challengeProgressContainer}>
-					<FontAwesome6 name='fire' style={styles.fireIcon} />
-					<Text style={styles.challengeProgress}>{progressText}</Text>
+					{isCompleted ? (
+						<FontAwesome6 name='award' style={styles.medalIcon} />
+					) : (
+						<FontAwesome6 name='fire' style={styles.fireIcon} />
+					)}
+					<Text style={styles.challengeProgress}>
+						{isCompleted ? '완료' : progressText}
+					</Text>
 				</View>
 			) : (
 				<View style={styles.miniGrid}>
@@ -133,6 +145,11 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		color: COLORS.text.light,
 	},
+	medalIcon: {
+		marginRight: 3,
+		fontSize: 13,
+		color: COLORS.primary,
+	},
 	miniGrid: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
@@ -147,7 +164,12 @@ const styles = StyleSheet.create({
 		marginBottom: 2,
 	},
 	miniDotFilled: {
-		backgroundColor: COLORS.tertiary,
+		backgroundColor: COLORS.secondary,
+	},
+	challengeCompleted: {
+		backgroundColor: COLORS.primary_opacity,
+		borderWidth: 2,
+		borderColor: COLORS.primary,
 	},
 });
 
