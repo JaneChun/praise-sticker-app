@@ -29,11 +29,6 @@ export interface ChallengeCardProps {
 	isSelected?: boolean;
 }
 
-// 페이지 관련 컴포넌트 타입
-export interface CalendarPageProps {
-	showDayDetail: (day: number) => void;
-}
-
 // 공통 컴포넌트 타입
 export interface ViewToggleProps {
 	viewMode: 'grid' | 'list';

@@ -8,9 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/colors';
 import DayDetailModal from '../modals/DayDetailModal';
 import { useUIStore } from '../store/useUIStore';
-import { CalendarPageProps } from '../types';
 
-const CalendarPage: FC<CalendarPageProps> = ({ showDayDetail }) => {
+const CalendarPage: FC = () => {
 	const { weeklyStickerCnt, streakCnt, markedDates, refresh } = useCalendar();
 	const { setDayDetailVisible } = useUIStore();
 
