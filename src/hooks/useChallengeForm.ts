@@ -47,7 +47,7 @@ export const useChallengeForm = (): UseChallengeFormReturn => {
 		setChallengeTitle(challenge.title);
 		setChallengeReward(challenge.reward || '');
 		setSelectedIcon(challenge.icon);
-		
+
 		// 일수 설정 - CHALLENGE_DURATIONS에 있는 값인지 확인
 		const CHALLENGE_DURATIONS = [7, 14, 21, 30, 100];
 		if (CHALLENGE_DURATIONS.includes(challenge.days)) {
@@ -60,13 +60,13 @@ export const useChallengeForm = (): UseChallengeFormReturn => {
 		}
 	};
 
-	// 폼 유효성 검증
-	const isValid = challengeTitle.trim().length > 0;
-
 	// 최종 일수 계산
 	const getFinalDays = (): number => {
 		return selectedDays === 'custom' ? parseInt(customDays) || 0 : selectedDays;
 	};
+
+	// 폼 유효성 검증
+	const isValid = challengeTitle.trim().length > 0 && getFinalDays() > 0;
 
 	return {
 		// 폼 상태
