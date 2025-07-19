@@ -145,6 +145,31 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	// 오늘의 스티커 드래그 레퍼런스
 	const longPressTimer = useRef<Timer | null>(null);
 
+	// 모달 닫기용 스와이프 PanResponder
+	const modalSwipePanResponder = PanResponder.create({
+		onStartShouldSetPanResponder: () => !isDragging, // 드래그 중이 아닐 때만
+		onMoveShouldSetPanResponder: (_, gestureState) => {
+			// 오른쪽에서 왼쪽으로 스와이프 감지 (수평 이동이 수직 이동보다 클 때)
+			return (
+				!isDragging &&
+				Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
+				gestureState.dx > 50 // 50px 이상 오른쪽으로 이동했을 때
+			);
+		},
+		onPanResponderGrant: () => {
+			// 스와이프 시작
+		},
+		onPanResponderMove: (_, gestureState) => {
+			// 스와이프 진행 중 (필요시 시각적 피드백 추가 가능)
+		},
+		onPanResponderRelease: (_, gestureState) => {
+			// 스와이프 완료 시 모달 닫기 (100px 이상 오른쪽으로 스와이프했을 때)
+			if (gestureState.dx > 100 && Math.abs(gestureState.vx) > 0.5) {
+				handleCloseModal();
+			}
+		},
+	});
+
 	// 오늘의 스티커 PanResponder
 	const selectedStickerPanResponder = PanResponder.create({
 		onStartShouldSetPanResponder: () => canAddSticker,
@@ -204,10 +229,10 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	return (
 		<Modal
 			visible={visible}
-			animationType='slide'
+			animationType='none'
 			presentationStyle='fullScreen'
 		>
-			<View style={styles.container}>
+			<View style={styles.container} {...modalSwipePanResponder.panHandlers}>
 				<LinearGradient
 					colors={COLORS.gradients.challenge as [ColorValue, ColorValue]}
 					style={[styles.header, { paddingTop: insets.top }]}
