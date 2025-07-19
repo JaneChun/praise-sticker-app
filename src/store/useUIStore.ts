@@ -12,6 +12,7 @@ interface UIState {
 	celebrationVisible: boolean;
 	dayDetailVisible: boolean;
 	stickerPackModalVisible: boolean;
+	rewardModalVisible: boolean;
 
 	// 스티커팩 모달 상태
 	activeStickerPack: StickerPackWithStickers | null;
@@ -28,6 +29,7 @@ interface UIActions {
 	setCelebrationVisible: (visible: boolean) => void;
 	setDayDetailVisible: (visible: boolean) => void;
 	setStickerPackModalVisible: (visible: boolean) => void;
+	setRewardModalVisible: (visible: boolean) => void;
 
 	// 스티커팩 모달 액션
 	setActiveStickerPack: (pack: StickerPackWithStickers | null) => void;
@@ -44,6 +46,7 @@ export const useUIStore = create<UIStore>((set) => ({
 	celebrationVisible: false,
 	dayDetailVisible: false,
 	stickerPackModalVisible: false,
+	rewardModalVisible: false,
 	activeStickerPack: null,
 
 	// 액션
@@ -59,6 +62,8 @@ export const useUIStore = create<UIStore>((set) => ({
 	setDayDetailVisible: (visible: boolean) => set({ dayDetailVisible: visible }),
 	setStickerPackModalVisible: (visible: boolean) =>
 		set({ stickerPackModalVisible: visible }),
+	setRewardModalVisible: (visible: boolean) =>
+		set({ rewardModalVisible: visible }),
 	setActiveStickerPack: (pack: StickerPackWithStickers | null) =>
 		set({ activeStickerPack: pack }),
 }));
