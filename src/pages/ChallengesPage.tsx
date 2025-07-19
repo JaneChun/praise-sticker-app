@@ -1,7 +1,7 @@
 import { resetDatabase } from '@/services';
 import { Entypo } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import {
 	Alert,
 	Button,
@@ -34,10 +34,19 @@ const ChallengesPage: FC = () => {
 		setCreateChallengeVisible,
 		setStickerPageVisible,
 		setEditChallengeVisible,
+		stickerPageVisible,
 	} = useUIStore();
 
 	const insets = useSafeAreaInsets();
 	const [actionSheetVisible, setActionSheetVisible] = useState(false);
+	const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
+
+	// StickerPageModal이 닫힐 때 카드의 challenge 진행상황 새로고침
+	useEffect(() => {
+		if (!stickerPageVisible) {
+			setRefreshTrigger((prev) => !prev);
+		}
+	}, [stickerPageVisible]);
 
 	// 카드 Press 핸들러
 	const handleChallengePress = (challengeId: string) => {
@@ -135,6 +144,7 @@ const ChallengesPage: FC = () => {
 							challenge={challenge}
 							onPress={() => handleChallengePress(challenge.id)}
 							onLongPress={() => handleChallengeLongPress(challenge.id)}
+							refreshTrigger={refreshTrigger}
 						/>
 					))}
 				</View>

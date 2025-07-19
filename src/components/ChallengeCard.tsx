@@ -12,6 +12,7 @@ interface ChallengeCardProps {
 	isNew?: boolean;
 	onPress: () => void;
 	onLongPress?: () => void;
+	refreshTrigger?: boolean;
 }
 
 const ChallengeCard: FC<ChallengeCardProps> = ({
@@ -19,6 +20,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 	isNew = false,
 	onPress,
 	onLongPress,
+	refreshTrigger,
 }) => {
 	const { currentView } = useUIStore();
 	const [progressText, setProgressText] = useState('');
@@ -31,7 +33,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 				setCompletedDays(progress.completedDays);
 			});
 		}
-	}, [challenge]);
+	}, [challenge, refreshTrigger]);
 
 	if (isNew) {
 		return (
