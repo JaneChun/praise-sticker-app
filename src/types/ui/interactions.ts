@@ -1,21 +1,26 @@
-import { StickerData } from '../database/entities';
+import { Sticker } from '../database/entities';
 
 // 드래그 관련 타입
 export interface DragState {
 	isDragging: boolean;
-	draggingSticker: StickerData | null;
-	hoveredSlotIndex: number | null;
+	draggingSticker: Sticker | null;
+	dragValue: any; // Animated.ValueXY
+	isDraggingFromSlot: boolean;
 }
 
 export interface DragHandlers {
-	handleDragStart: (x: number, y: number, sticker: StickerData) => void;
-	handleDragEnd: () => void;
-	updateDragPosition: (x: number, y: number) => void;
+	handleTodayStickerDragStart: (x: number, y: number, sticker: any) => void;
+	handleSlotStickerDragStart: (x: number, y: number, sticker: any) => void;
 	handleSlotLayout: (index: number, event: any) => void;
+	handleTodayStickerLayout: (event: any) => void;
+	isInTodayStickerArea: (x: number, y: number) => boolean;
+	isInNextSlotArea: (x: number, y: number) => boolean;
+	updateDragPosition: (x: number, y: number) => void;
+	handleDragEnd: () => void;
 }
 
 export interface UseStickerDragReturn extends DragState, DragHandlers {
-	dragValue: any; // Animated.ValueXY
+	nextSlotIndex: number;
 }
 
 // 제스처 상태 타입

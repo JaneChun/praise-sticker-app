@@ -1,30 +1,31 @@
-import { FC, useEffect, useRef } from 'react';
-import {
-	Animated,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native';
+import { FC, useCallback, useEffect, useRef } from 'react';
+import { Animated, PanResponder, StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../constants/colors';
 import { SIZES } from '../constants/dimensions';
-import { StickerSlotItemProps } from '../types';
-import StickerRenderer from './StickerRenderer';
+import { StickerSlotItemProps, Timer } from '../types';
 import { getTodayString } from '../utils/dateUtils';
+import StickerRenderer from './StickerRenderer';
 
 const StickerSlotItem: FC<StickerSlotItemProps> = ({
 	sticker,
 	index,
 	onLayout,
-	triggerAnimation,
-	isValidDropTarget,
-	onStickerRemove,
+	showScaleAnimation,
+	removeStickerFromGrid,
+	isDragging,
+	draggingSticker,
+	isValidDropSlot,
+	isDraggingSticker,
+	isInTodayStickerArea,
+	handleDragStart,
+	handleDragEnd,
+	updateDragPosition,
 }) => {
 	const scaleAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
 
+	// 스티커 붙이기 애니메이션
 	useEffect(() => {
-		// 스티커가 붙을 때 애니메이션
-		if (triggerAnimation === index && sticker) {
+		if (showScaleAnimation) {
 			Animated.sequence([
 				// 1.3배로 확대
 				Animated.timing(scaleAnim, {
@@ -40,19 +41,76 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 				}),
 			]).start();
 		}
-	}, [triggerAnimation, index, sticker, scaleAnim]);
+	}, [showScaleAnimation, scaleAnim]);
 
-	// 스티커 제거 핸들러 - 오늘 붙인 스티커만 제거 가능
-	const handleStickerPress = (): void => {
-		if (sticker && onStickerRemove) {
-			const today = getTodayString();
-			const isToday = sticker.log.date === today;
-			
-			if (isToday) {
-				onStickerRemove(index);
+	// 슬롯 드래그 레퍼런스
+	const longPressTimer = useRef<Timer | null>(null);
+
+	// 조건부 드래그 허용
+	const onStartShouldSetPanResponder = useCallback(() => {
+		if (!sticker) return false;
+
+		const today = getTodayString();
+
+		return sticker.log.date === today; // 오늘 붙인 스티커만 드래그 가능
+	}, [sticker]);
+
+	const onPanResponderGrant = useCallback(
+		(_: any, _gestureState: any) => {
+			if (!sticker) return;
+
+			longPressTimer.current = setTimeout(() => {
+				handleDragStart(
+					_gestureState.x0 - 30, // 스티커 크기 보정
+					_gestureState.y0 - 30,
+					sticker.sticker,
+				);
+			}, 500);
+		},
+		[sticker, handleDragStart],
+	);
+
+	const onPanResponderMove = useCallback(
+		(_: any, _gestureState: any) => {
+			if (isDragging) {
+				updateDragPosition(_gestureState.moveX, _gestureState.moveY);
 			}
-		}
-	};
+		},
+		[isDragging, updateDragPosition],
+	);
+
+	const onPanResponderRelease = useCallback(
+		(_: any, _gestureState: any) => {
+			// 타이머 정리
+			if (longPressTimer.current) {
+				clearTimeout(longPressTimer.current);
+				longPressTimer.current = null;
+			}
+
+			if (!isDragging) return;
+
+			if (isInTodayStickerArea(_gestureState.moveX, _gestureState.moveY)) {
+				removeStickerFromGrid(index);
+			}
+
+			handleDragEnd();
+		},
+		[
+			isDragging,
+			isInTodayStickerArea,
+			draggingSticker,
+			removeStickerFromGrid,
+			handleDragEnd,
+		],
+	);
+
+	// 슬롯 스티커 PanResponder
+	const slotStickerPanResponder = PanResponder.create({
+		onStartShouldSetPanResponder,
+		onPanResponderGrant,
+		onPanResponderMove,
+		onPanResponderRelease,
+	});
 
 	return (
 		<Animated.View
@@ -62,25 +120,23 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 					borderStyle: 'solid',
 					borderColor: 'transparent',
 				},
-				// 유효한 드롭 위치에 강조 효과
-				isValidDropTarget && styles.stickerSlotValidDrop,
+				isValidDropSlot && styles.validDropSlot,
 				{
 					transform: [{ scale: scaleAnim }],
 				},
 			]}
 		>
 			{sticker ? (
-				<TouchableOpacity
+				<Animated.View
 					style={[
 						styles.touchableArea,
-						sticker.log.date === getTodayString() ? styles.removableSticker : styles.permanentSticker
+						isDraggingSticker && styles.slotStickerDragging,
 					]}
 					onLayout={(event) => onLayout(index, event)}
-					onPress={handleStickerPress}
-					activeOpacity={sticker.log.date === getTodayString() ? 0.7 : 1}
+					{...slotStickerPanResponder.panHandlers}
 				>
 					<StickerRenderer sticker={sticker.sticker} size={SIZES.stickerSlot} />
-				</TouchableOpacity>
+				</Animated.View>
 			) : (
 				<View
 					style={styles.touchableArea}
@@ -111,7 +167,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	stickerSlotValidDrop: {
+	validDropSlot: {
 		borderStyle: 'solid',
 		borderColor: COLORS.border.light,
 		backgroundColor: COLORS.border.light,
@@ -120,12 +176,8 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		color: COLORS.text.light,
 	},
-	removableSticker: {
-		// 오늘 붙인 스티커 (제거 가능)
-	},
-	permanentSticker: {
-		// 이전에 붙인 스티커 (제거 불가능)
-		opacity: 0.9,
+	slotStickerDragging: {
+		opacity: 0.5,
 	},
 });
 

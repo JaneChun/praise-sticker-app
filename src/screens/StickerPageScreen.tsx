@@ -5,7 +5,7 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Animated,
 	ColorValue,
@@ -27,7 +27,7 @@ import StickerPackListModal from '../modals/StickerPackListModal';
 import { StackParamList } from '../navigation/StackNavigator';
 import * as stickerLogService from '../services/stickerLogService';
 import { useUIStore } from '../store';
-import { Sticker, StickerWithLog, Timer } from '../types';
+import { Sticker, Timer } from '../types';
 
 type Props = NativeStackScreenProps<StackParamList, 'StickerPage'>;
 
@@ -40,8 +40,11 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const { celebrationData, showCelebration } = useCelebration();
 
 	const insets = useSafeAreaInsets();
+	const scaleAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
 	const [selectedSticker, setSelectedSticker] = useState<Sticker | null>(null);
-	const [animationTrigger, setAnimationTrigger] = useState<number | null>(null);
+	const [scaleAnimSlotIndex, setScaleAnimSlotIndex] = useState<number | null>(
+		null,
+	);
 
 	const {
 		stickerPackModalVisible,
@@ -59,43 +62,46 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 		}
 	}, [currentChallenge?.id, stickerPacks]);
 
-	const getNextSlotIndex = (grid: Array<StickerWithLog | null>): number => {
-		return grid.findIndex((slot) => slot === null);
+	const handleGoBack = () => {
+		navigation.goBack();
+
+		// celebrationData가 있으면 축하 모달을 표시
+		if (celebrationData) {
+			setCelebrationVisible(true);
+		}
 	};
 
+	/* ────────────────── 스티커 추가, 제거 로직 ────────────────── */
 	const addStickerToGrid = async (
 		index: number,
 		sticker: Sticker,
 	): Promise<void> => {
-		if (!canAddSticker) {
-			console.warn('Already added sticker for today');
-			return;
-		}
+		// 1. 권한 확인 (하루에 한 번만)
+		if (!canAddSticker) return;
 
+		// 2. 햅틱 피드백
 		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
 		try {
-			// 스티커 로그 생성
+			// 3. 데이터베이스 저장
 			const newLog = await stickerLogService.addStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
 				sticker.id,
 				getTodayString(),
 			);
 
-			// 로컬 상태 업데이트
+			// 4. 로컬 상태 업데이트
 			const newGrid = [...stickerGrid];
 			newGrid[index] = { sticker, log: newLog };
 			setStickerGrid(newGrid);
 
-			// 스티커 붙이기 애니메이션 트리거
-			setAnimationTrigger(index);
-
-			// 애니메이션 후 초기화
+			// 5. 스티커 붙이기 애니메이션 트리거
+			setScaleAnimSlotIndex(index);
 			setTimeout(() => {
-				setAnimationTrigger(null);
+				setScaleAnimSlotIndex(null);
 			}, 300);
 
-			// 축하 메세지 설정
+			// 6. 축하 메세지 설정
 			showCelebration(stickerCount + 1, currentChallenge?.days || 30);
 		} catch (error) {
 			console.error('Error adding sticker:', error);
@@ -106,20 +112,37 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 		const stickerWithLog = stickerGrid[index];
 		if (!stickerWithLog) return;
 
+		// 0. 햅틱 피드백
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
 		try {
-			// 스티커 로그 삭제 - 실제 스티커가 붙은 날짜 사용
+			// 1. 데이터베이스에서 삭제
 			await stickerLogService.removeStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
 				stickerWithLog.log.date,
 			);
 
-			// 로컬 상태 업데이트
+			// 2. 로컬 상태 업데이트
 			const newGrid = [...stickerGrid];
 			newGrid[index] = null;
 			setStickerGrid(newGrid);
 
-			// 오늘의 스티커 복원
+			// 3. 오늘의 스티커로  복원
 			setSelectedSticker(stickerWithLog.sticker);
+
+			// 4. 오늘의 스티커 스케일 애니메이션 트리거
+			Animated.sequence([
+				Animated.timing(scaleAnim, {
+					toValue: 1.3,
+					duration: 150,
+					useNativeDriver: true,
+				}),
+				Animated.timing(scaleAnim, {
+					toValue: 1,
+					duration: 150,
+					useNativeDriver: true,
+				}),
+			]).start();
 		} catch (error) {
 			console.error('Error removing sticker:', error);
 		}
@@ -129,53 +152,73 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const {
 		isDragging,
 		draggingSticker,
-		hoveredSlotIndex,
 		dragValue,
-		handleDragStart,
-		handleDragEnd,
-		updateDragPosition,
+
+		isDraggingFromSlot,
+		nextSlotIndex,
+
+		handleTodayStickerDragStart,
+		handleSlotStickerDragStart,
 		handleSlotLayout,
+		handleTodayStickerLayout,
+		isInTodayStickerArea,
+		isInNextSlotArea,
+		updateDragPosition,
+		handleDragEnd,
 	} = useStickerDrag(stickerGrid);
 
 	// 오늘의 스티커 드래그 레퍼런스
 	const longPressTimer = useRef<Timer | null>(null);
 
-	// 오늘의 스티커 PanResponder
-	const selectedStickerPanResponder = PanResponder.create({
-		onStartShouldSetPanResponder: () => canAddSticker,
-		onPanResponderGrant: (_, _gestureState) => {
-			if (selectedSticker) {
-				longPressTimer.current = setTimeout(() => {
-					handleDragStart(
-						_gestureState.x0 - 30, // 스티커 크기 보정
-						_gestureState.y0 - 30,
-						selectedSticker,
-					);
-				}, 500);
-			}
+	const onPanResponderGrant = useCallback(
+		(_: any, _gestureState: any) => {
+			if (!selectedSticker) return;
+
+			longPressTimer.current = setTimeout(() => {
+				handleTodayStickerDragStart(
+					_gestureState.x0 - 30, // 스티커 크기 보정
+					_gestureState.y0 - 30,
+					selectedSticker,
+				);
+			}, 500);
 		},
-		onPanResponderMove: (_, _gestureState) => {
+		[selectedSticker, handleTodayStickerDragStart],
+	);
+
+	const onPanResponderMove = useCallback(
+		(_: any, _gestureState: any) => {
 			if (isDragging) {
 				updateDragPosition(_gestureState.moveX, _gestureState.moveY);
 			}
 		},
-		onPanResponderRelease: (_, _gestureState) => {
+		[isDragging, updateDragPosition],
+	);
+
+	const onPanResponderRelease = useCallback(
+		(_: any, _gestureState: any) => {
+			// 타이머 정리
 			if (longPressTimer.current) {
 				clearTimeout(longPressTimer.current);
 				longPressTimer.current = null;
 			}
 
-			if (isDragging) {
-				const nextSlotIndex = getNextSlotIndex(stickerGrid);
+			if (!isDragging || !selectedSticker) return;
 
-				// 오늘의 스티커에서 드래그하는 경우
-				if (hoveredSlotIndex === nextSlotIndex && selectedSticker) {
-					addStickerToGrid(hoveredSlotIndex, selectedSticker);
-				}
-
-				handleDragEnd();
+			if (isInNextSlotArea(_gestureState.moveX, _gestureState.moveY)) {
+				addStickerToGrid(nextSlotIndex, selectedSticker);
 			}
+
+			handleDragEnd();
 		},
+		[isDragging, isInNextSlotArea, selectedSticker, addStickerToGrid],
+	);
+
+	// 오늘의 스티커 PanResponder
+	const selectedStickerPanResponder = PanResponder.create({
+		onStartShouldSetPanResponder: () => canAddSticker, // 조건부 드래그 허용
+		onPanResponderGrant,
+		onPanResponderMove,
+		onPanResponderRelease,
 	});
 
 	/* ────────────────── 스티커팩 모달 UI helpers ────────────────── */
@@ -186,16 +229,6 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const handleSelectSticker = (sticker: Sticker) => {
 		setSelectedSticker(sticker);
 	};
-
-	const handleGoBack = () => {
-		navigation.goBack();
-
-		// celebrationData가 있으면 축하 모달을 표시
-		if (celebrationData) {
-			setCelebrationVisible(true);
-		}
-	};
-
 	return (
 		<View style={styles.container}>
 			<LinearGradient
@@ -228,8 +261,14 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 						<Animated.View
 							style={[
 								styles.selectedSticker,
-								isDragging && styles.selectedStickerDragging,
+								isDragging &&
+									!isDraggingFromSlot &&
+									styles.selectedStickerDragging,
+								{
+									transform: [{ scale: scaleAnim }],
+								},
 							]}
+							onLayout={handleTodayStickerLayout}
 							{...selectedStickerPanResponder.panHandlers}
 						>
 							<StickerRenderer
@@ -238,7 +277,16 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 							/>
 						</Animated.View>
 					) : (
-						<View style={styles.emptySticker} />
+						<View
+							style={[
+								styles.emptySticker,
+								// 슬롯에서 드래그할 때 오늘의 스티커 영역 강조
+								isDragging &&
+									isDraggingFromSlot &&
+									styles.todayStickerValidDrop,
+							]}
+							onLayout={handleTodayStickerLayout}
+						/>
 					)}
 
 					<Text style={styles.stickerSelectionTitle}>오늘의 스티커</Text>
@@ -262,18 +310,28 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			>
 				<View style={styles.stickerGrid}>
 					{stickerGrid?.map((sticker, index) => {
-						const nextSlotIndex = getNextSlotIndex(stickerGrid);
-						const isValidDropTarget = isDragging && index === nextSlotIndex;
-
 						return (
 							<StickerSlotItem
 								key={index}
 								sticker={sticker}
 								index={index}
 								onLayout={handleSlotLayout}
-								triggerAnimation={animationTrigger}
-								isValidDropTarget={isValidDropTarget}
-								onStickerRemove={() => removeStickerFromGrid(index)}
+								showScaleAnimation={index === scaleAnimSlotIndex}
+								removeStickerFromGrid={removeStickerFromGrid}
+								isValidDropSlot={
+									isDragging && !isDraggingFromSlot && index === nextSlotIndex
+								}
+								isDraggingSticker={
+									isDragging &&
+									isDraggingFromSlot &&
+									index === Math.max(0, nextSlotIndex - 1)
+								}
+								isDragging={isDragging}
+								draggingSticker={draggingSticker}
+								isInTodayStickerArea={isInTodayStickerArea}
+								handleDragStart={handleSlotStickerDragStart}
+								handleDragEnd={handleDragEnd}
+								updateDragPosition={updateDragPosition}
 							/>
 						);
 					})}
@@ -281,7 +339,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			</ScrollView>
 
 			{/* 드래그 중인 스티커 표시 */}
-			{isDragging && draggingSticker && selectedSticker && (
+			{isDragging && draggingSticker && (
 				<Animated.View
 					style={[
 						styles.draggingSticker,
@@ -291,7 +349,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 					]}
 					pointerEvents='none'
 				>
-					<StickerRenderer sticker={selectedSticker} size={SIZES.stickerSlot} />
+					<StickerRenderer sticker={draggingSticker} size={SIZES.stickerSlot} />
 				</Animated.View>
 			)}
 
@@ -362,7 +420,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	selectedStickerDragging: {
-		opacity: 0.7,
+		opacity: 0.5,
 	},
 	emptySticker: {
 		width: SIZES.stickerSlot,
@@ -404,6 +462,11 @@ const styles = StyleSheet.create({
 		color: COLORS.text.white,
 		opacity: 0.8,
 		marginTop: 4,
+	},
+	todayStickerValidDrop: {
+		borderStyle: 'solid',
+		borderColor: COLORS.border.light,
+		backgroundColor: COLORS.border.light,
 	},
 });
 
