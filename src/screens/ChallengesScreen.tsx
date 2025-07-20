@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { COLORS } from '../constants/colors';
 import CelebrationModal from '../modals/CelebrationModal';
 import CreateChallengeModal from '../modals/CreateChallengeModal';
-import StickerPageModal from '../modals/StickerPageModal';
 import ChallengesPage from '../pages/ChallengesPage';
 import { useChallengeStore, useUIStore } from '../store';
 
@@ -14,10 +13,8 @@ const ChallengesScreen: FC = () => {
 	const {
 		createChallengeVisible,
 		editChallengeVisible,
-		stickerPageVisible,
 		setCreateChallengeVisible,
 		setEditChallengeVisible,
-		setStickerPageVisible,
 	} = useUIStore();
 
 	return (
@@ -38,13 +35,6 @@ const ChallengesScreen: FC = () => {
 				)}
 			/>
 
-			<StickerPageModal
-				visible={stickerPageVisible}
-				setVisible={setStickerPageVisible}
-				currentChallenge={
-					challenges.find(({ id }) => id == selectedChallengeId) || null
-				}
-			/>
 
 			<CelebrationModal />
 		</View>

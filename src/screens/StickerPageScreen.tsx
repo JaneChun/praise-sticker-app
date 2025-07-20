@@ -2,13 +2,13 @@ import { useStickerPage } from '@/hooks/useStickerPage';
 import { useStickers } from '@/hooks/useStickers';
 import { getTodayString } from '@/utils/dateUtils';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useEffect, useRef, useState } from 'react';
 import {
 	Animated,
 	ColorValue,
-	Modal,
 	PanResponder,
 	ScrollView,
 	StyleSheet,
@@ -23,21 +23,17 @@ import { COLORS } from '../constants/colors';
 import { SIZES } from '../constants/dimensions';
 import { useCelebration } from '../hooks/useCelebration';
 import { useStickerDrag } from '../hooks/useStickerDrag';
+import StickerPackListModal from '../modals/StickerPackListModal';
+import { StackParamList } from '../navigation/StackNavigator';
 import * as stickerLogService from '../services/stickerLogService';
 import { useUIStore } from '../store';
-import {
-	Sticker,
-	StickerPageModalProps,
-	StickerWithLog,
-	Timer,
-} from '../types';
-import StickerPackListModal from './StickerPackListModal';
+import { Sticker, StickerWithLog, Timer } from '../types';
 
-const StickerPageModal: FC<StickerPageModalProps> = ({
-	visible,
-	setVisible,
-	currentChallenge,
-}) => {
+type Props = NativeStackScreenProps<StackParamList, 'StickerPage'>;
+
+const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
+	const { currentChallenge } = route.params;
+
 	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } =
 		useStickerPage(currentChallenge?.id, currentChallenge?.days);
 	const { stickerPacks } = useStickers();
@@ -144,31 +140,6 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	// 오늘의 스티커 드래그 레퍼런스
 	const longPressTimer = useRef<Timer | null>(null);
 
-	// 모달 닫기용 스와이프 PanResponder
-	const modalSwipePanResponder = PanResponder.create({
-		onStartShouldSetPanResponder: () => !isDragging, // 드래그 중이 아닐 때만
-		onMoveShouldSetPanResponder: (_, gestureState) => {
-			// 오른쪽에서 왼쪽으로 스와이프 감지 (수평 이동이 수직 이동보다 클 때)
-			return (
-				!isDragging &&
-				Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
-				gestureState.dx > 50 // 50px 이상 오른쪽으로 이동했을 때
-			);
-		},
-		onPanResponderGrant: () => {
-			// 스와이프 시작
-		},
-		onPanResponderMove: (_, gestureState) => {
-			// 스와이프 진행 중 (필요시 시각적 피드백 추가 가능)
-		},
-		onPanResponderRelease: (_, gestureState) => {
-			// 스와이프 완료 시 모달 닫기 (100px 이상 오른쪽으로 스와이프했을 때)
-			if (gestureState.dx > 100 && Math.abs(gestureState.vx) > 0.5) {
-				handleCloseModal();
-			}
-		},
-	});
-
 	// 오늘의 스티커 PanResponder
 	const selectedStickerPanResponder = PanResponder.create({
 		onStartShouldSetPanResponder: () => canAddSticker,
@@ -216,8 +187,8 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 		setSelectedSticker(sticker);
 	};
 
-	const handleCloseModal = () => {
-		setVisible(false);
+	const handleGoBack = () => {
+		navigation.goBack();
 
 		// celebrationData가 있으면 축하 모달을 표시
 		if (celebrationData) {
@@ -226,97 +197,88 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	};
 
 	return (
-		<Modal
-			visible={visible}
-			animationType='none'
-			presentationStyle='fullScreen'
-		>
-			<View style={styles.container}>
-				<LinearGradient
-					colors={COLORS.gradients.challenge as [ColorValue, ColorValue]}
-					style={[styles.header, { paddingTop: insets.top }]}
-					start={{ x: 0, y: 0.3 }}
-				>
-					<View style={styles.headerContent}>
-						<View style={styles.buttonsContainer}>
-							<TouchableOpacity onPress={handleCloseModal}>
-								<Ionicons
-									name='chevron-back'
-									size={28}
-									color={COLORS.background.primary}
-								/>
-							</TouchableOpacity>
-						</View>
-
-						<View>
-							<Text style={styles.headerTitle}>{currentChallenge?.title}</Text>
-							<Text style={styles.headerSubtitle}>
-								오늘도 잘했어요! 스티커로 칭찬해주세요
-							</Text>
-						</View>
-					</View>
-
-					{/* 오늘의 스티커 */}
-					<View style={styles.stickerSelection}>
-						{canAddSticker && selectedSticker ? (
-							<Animated.View
-								style={[
-									styles.selectedSticker,
-									isDragging && styles.selectedStickerDragging,
-								]}
-								{...selectedStickerPanResponder.panHandlers}
-							>
-								<StickerRenderer
-									sticker={selectedSticker}
-									size={SIZES.stickerSlot}
-								/>
-							</Animated.View>
-						) : (
-							<View style={styles.emptySticker} />
-						)}
-
-						<Text style={styles.stickerSelectionTitle}>오늘의 스티커</Text>
-
-						{/* 스티커팩 열기 버튼 */}
-						<TouchableOpacity
-							style={styles.changeButton}
-							onPress={openPackModal}
-						>
-							<FontAwesome
-								name={stickerPackModalVisible ? 'folder-open' : 'folder'}
-								size={22}
-								color={COLORS.text.light}
+		<View style={styles.container}>
+			<LinearGradient
+				colors={COLORS.gradients.challenge as [ColorValue, ColorValue]}
+				style={[styles.header, { paddingTop: insets.top }]}
+				start={{ x: 0, y: 0.3 }}
+			>
+				<View style={styles.headerContent}>
+					<View style={styles.buttonsContainer}>
+						<TouchableOpacity onPress={handleGoBack}>
+							<Ionicons
+								name='chevron-back'
+								size={28}
+								color={COLORS.background.primary}
 							/>
 						</TouchableOpacity>
 					</View>
-				</LinearGradient>
 
-				{/* 스티커판 */}
-				<ScrollView
-					style={styles.stickerBoard}
-					contentContainerStyle={styles.stickerBoardContent}
-					scrollEnabled={!isDragging}
-				>
-					<View style={styles.stickerGrid}>
-						{stickerGrid?.map((sticker, index) => {
-							const nextSlotIndex = getNextSlotIndex(stickerGrid);
-							const isValidDropTarget = isDragging && index === nextSlotIndex;
-
-							return (
-								<StickerSlotItem
-									key={index}
-									sticker={sticker}
-									index={index}
-									onLayout={handleSlotLayout}
-									triggerAnimation={animationTrigger}
-									isValidDropTarget={isValidDropTarget}
-									onStickerRemove={() => removeStickerFromGrid(index)}
-								/>
-							);
-						})}
+					<View>
+						<Text style={styles.headerTitle}>{currentChallenge?.title}</Text>
+						<Text style={styles.headerSubtitle}>
+							오늘도 잘했어요! 스티커로 칭찬해주세요
+						</Text>
 					</View>
-				</ScrollView>
-			</View>
+				</View>
+
+				{/* 오늘의 스티커 */}
+				<View style={styles.stickerSelection}>
+					{canAddSticker && selectedSticker ? (
+						<Animated.View
+							style={[
+								styles.selectedSticker,
+								isDragging && styles.selectedStickerDragging,
+							]}
+							{...selectedStickerPanResponder.panHandlers}
+						>
+							<StickerRenderer
+								sticker={selectedSticker}
+								size={SIZES.stickerSlot}
+							/>
+						</Animated.View>
+					) : (
+						<View style={styles.emptySticker} />
+					)}
+
+					<Text style={styles.stickerSelectionTitle}>오늘의 스티커</Text>
+
+					{/* 스티커팩 열기 버튼 */}
+					<TouchableOpacity style={styles.changeButton} onPress={openPackModal}>
+						<FontAwesome
+							name={stickerPackModalVisible ? 'folder-open' : 'folder'}
+							size={22}
+							color={COLORS.text.light}
+						/>
+					</TouchableOpacity>
+				</View>
+			</LinearGradient>
+
+			{/* 스티커판 */}
+			<ScrollView
+				style={styles.stickerBoard}
+				contentContainerStyle={styles.stickerBoardContent}
+				scrollEnabled={!isDragging}
+			>
+				<View style={styles.stickerGrid}>
+					{stickerGrid?.map((sticker, index) => {
+						const nextSlotIndex = getNextSlotIndex(stickerGrid);
+						const isValidDropTarget = isDragging && index === nextSlotIndex;
+
+						return (
+							<StickerSlotItem
+								key={index}
+								sticker={sticker}
+								index={index}
+								onLayout={handleSlotLayout}
+								triggerAnimation={animationTrigger}
+								isValidDropTarget={isValidDropTarget}
+								onStickerRemove={() => removeStickerFromGrid(index)}
+							/>
+						);
+					})}
+				</View>
+			</ScrollView>
 
 			{/* 드래그 중인 스티커 표시 */}
 			{isDragging && draggingSticker && selectedSticker && (
@@ -335,7 +297,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 
 			{/* 스티커팩 선택 모달 */}
 			<StickerPackListModal onStickerSelect={handleSelectSticker} />
-		</Modal>
+		</View>
 	);
 };
 
@@ -445,4 +407,4 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default StickerPageModal;
+export default StickerPageScreen;

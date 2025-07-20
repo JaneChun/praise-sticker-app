@@ -1,7 +1,9 @@
 import { runTestScenario } from '@/utils/testDataUtils';
 import { Entypo } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { FC, useCallback, useState } from 'react';
 import {
 	Alert,
 	Button,
@@ -17,11 +19,16 @@ import ActionSheet from '../components/ActionSheet';
 import ChallengeCard from '../components/ChallengeCard';
 import ViewToggle from '../components/ViewToggle';
 import { COLORS } from '../constants/colors';
+import { StackParamList } from '../navigation/StackNavigator';
 import { deleteChallenge } from '../services/challengeService';
 import { useChallengeStore, useUIStore } from '../store';
 import { ActionSheetOption } from '../types';
 
+type NavigationProp = NativeStackNavigationProp<StackParamList>;
+
 const ChallengesPage: FC = () => {
+	const navigation = useNavigation<NavigationProp>();
+	
 	const {
 		selectedChallengeId,
 		setSelectedChallengeId,
@@ -30,28 +37,25 @@ const ChallengesPage: FC = () => {
 		loadChallenges,
 	} = useChallengeStore();
 
-	const {
-		setCreateChallengeVisible,
-		setStickerPageVisible,
-		setEditChallengeVisible,
-		stickerPageVisible,
-	} = useUIStore();
+	const { setCreateChallengeVisible, setEditChallengeVisible } = useUIStore();
 
 	const insets = useSafeAreaInsets();
 	const [actionSheetVisible, setActionSheetVisible] = useState(false);
 	const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
 
-	// StickerPageModal이 닫힐 때 카드의 challenge 진행상황 새로고침
-	useEffect(() => {
-		if (!stickerPageVisible) {
+	// 화면이 포커스될 때마다 카드 새로고침
+	useFocusEffect(
+		useCallback(() => {
 			setRefreshTrigger((prev) => !prev);
-		}
-	}, [stickerPageVisible]);
+		}, [])
+	);
 
 	// 카드 Press 핸들러
 	const handleChallengePress = (challengeId: string) => {
-		setSelectedChallengeId(challengeId);
-		setStickerPageVisible(true);
+		const currentChallenge = challenges.find(({ id }) => id === challengeId);
+		if (currentChallenge) {
+			navigation.navigate('StickerPage', { currentChallenge });
+		}
 	};
 
 	// 카드 LongPress 핸들러

@@ -8,7 +8,6 @@ interface UIState {
 	// 모달 상태
 	createChallengeVisible: boolean;
 	editChallengeVisible: boolean;
-	stickerPageVisible: boolean;
 	celebrationVisible: boolean;
 	dayDetailVisible: boolean;
 	stickerPackModalVisible: boolean;
@@ -25,7 +24,6 @@ interface UIActions {
 	// 모달 액션
 	setCreateChallengeVisible: (visible: boolean) => void;
 	setEditChallengeVisible: (visible: boolean) => void;
-	setStickerPageVisible: (visible: boolean) => void;
 	setCelebrationVisible: (visible: boolean) => void;
 	setDayDetailVisible: (visible: boolean) => void;
 	setStickerPackModalVisible: (visible: boolean) => void;
@@ -42,7 +40,6 @@ export const useUIStore = create<UIStore>((set) => ({
 	currentView: 'card',
 	createChallengeVisible: false,
 	editChallengeVisible: false,
-	stickerPageVisible: false,
 	celebrationVisible: false,
 	dayDetailVisible: false,
 	stickerPackModalVisible: false,
@@ -55,8 +52,6 @@ export const useUIStore = create<UIStore>((set) => ({
 		set({ createChallengeVisible: visible }),
 	setEditChallengeVisible: (visible: boolean) =>
 		set({ editChallengeVisible: visible }),
-	setStickerPageVisible: (visible: boolean) =>
-		set({ stickerPageVisible: visible }),
 	setCelebrationVisible: (visible: boolean) =>
 		set({ celebrationVisible: visible }),
 	setDayDetailVisible: (visible: boolean) => set({ dayDetailVisible: visible }),

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import 'react-native-get-random-values';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import TabNavigator from './src/navigation/TabNavigator';
+import StackNavigator from './src/navigation/StackNavigator';
 import { useChallengeStore, useDatabaseStore } from './src/store';
 
 const App = () => {
@@ -35,7 +35,7 @@ const App = () => {
 					translucent
 				/>
 				<NavigationContainer>
-					<TabNavigator />
+					<StackNavigator />
 				</NavigationContainer>
 			</View>
 		</SafeAreaProvider>
