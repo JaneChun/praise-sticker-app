@@ -10,7 +10,8 @@ import RewardModal from './RewardModal';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
-	const { celebrationVisible, rewardModalVisible, setRewardModalVisible } = useUIStore();
+	const { celebrationVisible, rewardModalVisible, setRewardModalVisible } =
+		useUIStore();
 	const { selectedChallengeId, challenges } = useChallengeStore();
 
 	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
@@ -30,8 +31,10 @@ const CelebrationModal: FC = ({}) => {
 			);
 
 			setShowParticleEffect(isFinalMessage);
-			if (currentChallenge?.reward) {
-				setShowRewardPopup(true);
+			if (isFinalMessage) {
+				if (currentChallenge?.reward) {
+					setShowRewardPopup(true);
+				}
 			}
 		} else {
 			setShowParticleEffect(false);
