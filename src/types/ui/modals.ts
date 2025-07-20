@@ -25,6 +25,7 @@ export interface CelebrationMessage {
 // 일별 상세 모달 타입
 export interface DayDetailModalProps {
 	selectedDate: string;
+	onClose: () => void;
 }
 
 // 도전 생성 모달 타입

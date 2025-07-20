@@ -88,7 +88,12 @@ const CalendarPage: FC = () => {
 				/>
 			</View>
 
-			<DayDetailModal selectedDate={selectedDate} />
+			{selectedDate && (
+				<DayDetailModal
+					selectedDate={selectedDate}
+					onClose={() => setSelectedDate(null)}
+				/>
+			)}
 		</ScrollView>
 	);
 };

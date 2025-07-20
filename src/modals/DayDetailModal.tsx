@@ -19,7 +19,7 @@ import {
 	GetDayDetailResponse,
 } from '../types';
 
-const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate }) => {
+const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate, onClose }) => {
 	const { dayDetailVisible, setDayDetailVisible } = useUIStore();
 
 	const [dayDetailData, setDayDetailData] =
@@ -83,15 +83,16 @@ const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate }) => {
 
 	const totalStickers = dayDetailData?.totalStickers || 0;
 
-	const onClose = useCallback(() => {
+	const handleClose = useCallback(() => {
 		setDayDetailVisible(false);
-		setDayDetailData(null);
-		setError(null);
+		onClose();
 	}, [setDayDetailVisible]);
+
+	if (isLoading) return null;
 
 	return (
 		<Modal visible={dayDetailVisible} transparent animationType='fade'>
-			<TouchableWithoutFeedback onPress={onClose}>
+			<TouchableWithoutFeedback onPress={handleClose}>
 				<View style={styles.overlay}>
 					<TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
 						<View style={styles.dayDetailContent}>
