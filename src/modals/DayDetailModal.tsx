@@ -5,8 +5,8 @@ import * as stickerService from '@/services/stickerService';
 import { useUIStore } from '@/store';
 import { FC, useCallback, useEffect, useState } from 'react';
 import {
+	FlatList,
 	Modal,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TouchableWithoutFeedback,
@@ -108,22 +108,32 @@ const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate }) => {
 								</Text>
 							</View>
 
-							<ScrollView style={styles.stickersByChallenge}>
-								{dayDetailData?.challengeWithStickers.map((challenge) => (
+							<FlatList
+								data={dayDetailData?.challengeWithStickers ?? []}
+								keyExtractor={(item) => item.challengeId}
+								style={styles.stickersByChallenge}
+								contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
+								nestedScrollEnabled={true}
+								showsVerticalScrollIndicator={false}
+								renderItem={({ item: challenge }) => (
 									<View
-										key={challenge.challengeId}
 										style={styles.challengeSection}
+										onStartShouldSetResponder={() => true}
 									>
 										<View style={styles.challengeInfo}>
 											<Text style={styles.challengeEmoji}>
 												{challenge.challengeIcon || '🎯'}
 											</Text>
-											<Text style={styles.challengeTitle}>
+											<Text
+												numberOfLines={1}
+												ellipsizeMode='tail'
+												style={styles.challengeTitle}
+											>
 												{challenge.challengeTitle}
 											</Text>
 										</View>
 										<View style={styles.stickersList}>
-											{challenge.stickers.map((sticker, index) => (
+											{challenge.stickers.map((sticker) => (
 												<StickerRenderer
 													key={sticker.id}
 													sticker={sticker}
@@ -132,8 +142,8 @@ const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate }) => {
 											))}
 										</View>
 									</View>
-								))}
-							</ScrollView>
+								)}
+							/>
 						</View>
 					</TouchableWithoutFeedback>
 				</View>
@@ -155,7 +165,7 @@ const styles = StyleSheet.create({
 		padding: 24,
 		maxWidth: 320,
 		width: '90%',
-		maxHeight: '80%',
+		height: '50%',
 	},
 	closeDayDetail: {
 		position: 'absolute',
@@ -190,7 +200,8 @@ const styles = StyleSheet.create({
 		color: COLORS.text.secondary,
 	},
 	stickersByChallenge: {
-		maxHeight: 400,
+		flex: 1,
+		minHeight: 100,
 	},
 	challengeSection: {
 		marginBottom: 16,
@@ -211,6 +222,7 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: '600',
 		color: COLORS.text.primary,
+		flex: 1,
 	},
 	stickersList: {
 		flexDirection: 'row',
