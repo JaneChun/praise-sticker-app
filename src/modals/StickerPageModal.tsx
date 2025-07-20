@@ -1,5 +1,6 @@
 import { useStickerPage } from '@/hooks/useStickerPage';
 import { useStickers } from '@/hooks/useStickers';
+import { getTodayString } from '@/utils/dateUtils';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useEffect, useRef, useState } from 'react';
@@ -74,7 +75,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			await stickerLogService.addStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
 				sticker.id,
-				new Date().toISOString().split('T')[0],
+				getTodayString(),
 			);
 
 			// 로컬 상태 업데이트
@@ -105,7 +106,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			// 스티커 로그 삭제
 			await stickerLogService.removeStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
-				new Date().toISOString().split('T')[0],
+				getTodayString(),
 			);
 
 			// 로컬 상태 업데이트

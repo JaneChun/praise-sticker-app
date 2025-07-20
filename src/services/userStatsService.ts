@@ -1,4 +1,5 @@
 import type { UserStats } from '../types';
+import { getTodayString, getYesterdayString } from '../utils/dateUtils';
 import { db } from './databaseService';
 
 /**
@@ -32,8 +33,8 @@ export const getUserStats = async (): Promise<UserStats> => {
  * 오늘과 어제 날짜 문자열(YYYY-MM-DD) 반환
  */
 const getTodayAndYesterday = (): { today: string; yesterday: string } => {
-	const today = new Date().toISOString().split('T')[0];
-	const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+	const today = getTodayString();
+	const yesterday = getYesterdayString();
 	return { today, yesterday };
 };
 

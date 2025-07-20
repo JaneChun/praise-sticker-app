@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import * as stickerLogService from '../services/stickerLogService';
 import * as stickerService from '../services/stickerService';
 import { StickerGridItem } from '../types';
+import { getTodayString } from '../utils/dateUtils';
 
 export const useStickerPage = (
 	challengeId?: string,
@@ -58,7 +59,7 @@ export const useStickerPage = (
 		}
 
 		try {
-			const today = new Date().toISOString().split('T')[0];
+			const today = getTodayString();
 
 			const logsForDate = await stickerLogService.getStickerLogsByDate(today);
 			const challengeLogsForDate = logsForDate.filter(

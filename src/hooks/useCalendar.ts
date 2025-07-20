@@ -4,6 +4,7 @@ import * as stickerLogService from '@/services/stickerLogService';
 import * as userStatsService from '@/services/userStatsService';
 import { UserStats } from '@/types';
 import type { CalendarDayData } from '@/types/database/api';
+import { getDate, getTodayString } from '@/utils/dateUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useCalendar = () => {
@@ -41,7 +42,7 @@ export const useCalendar = () => {
 	}, []);
 
 	const loadCalendarData = useCallback(async () => {
-		const today = new Date();
+		const today = getDate();
 
 		const year = today.getFullYear();
 		const month = today.getMonth() + 1;
@@ -55,7 +56,7 @@ export const useCalendar = () => {
 	}, []);
 
 	const loadWeeklyStickerCnt = useCallback(async () => {
-		const today = new Date();
+		const today = getDate();
 		const currentDay = today.getDay(); // 요일
 
 		const monday = new Date(today);
@@ -77,7 +78,7 @@ export const useCalendar = () => {
 	// 최근 연속 일수 계산
 	const getStreakDates = (stickerDates: string[]) => {
 		const streakDates: string[] = [];
-		let currentDate = new Date();
+		let currentDate = getDate();
 
 		// 오늘부터 역순으로 연속된 날짜 카운트
 		while (true) {
@@ -96,8 +97,7 @@ export const useCalendar = () => {
 	const markedDates = useMemo(() => {
 		const marked: { [key: string]: any } = {};
 
-		const today = new Date();
-		const todayString = today.toISOString().split('T')[0];
+		const todayString = getTodayString();
 
 		// 스티커가 있는 날짜들을 날짜순으로 정렬
 		const stickerDates = Object.keys(calendarData)
