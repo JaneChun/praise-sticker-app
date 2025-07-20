@@ -72,7 +72,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 
 		try {
 			// 스티커 로그 생성
-			await stickerLogService.addStickerLog(
+			const newLog = await stickerLogService.addStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
 				sticker.id,
 				getTodayString(),
@@ -80,7 +80,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 
 			// 로컬 상태 업데이트
 			const newGrid = [...stickerGrid];
-			newGrid[index] = sticker;
+			newGrid[index] = { sticker, log: newLog };
 			setStickerGrid(newGrid);
 
 			// 스티커 붙이기 애니메이션 트리거
@@ -99,14 +99,14 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 	};
 
 	const removeStickerFromGrid = async (index: number): Promise<void> => {
-		const stickerToRemove = stickerGrid[index];
-		if (!stickerToRemove) return;
+		const stickerWithLog = stickerGrid[index];
+		if (!stickerWithLog) return;
 
 		try {
-			// 스티커 로그 삭제
+			// 스티커 로그 삭제 - 실제 스티커가 붙은 날짜 사용
 			await stickerLogService.removeStickerLog(
 				String(currentChallenge?.id || 'default-challenge'),
-				getTodayString(),
+				stickerWithLog.log.date,
 			);
 
 			// 로컬 상태 업데이트
@@ -115,7 +115,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			setStickerGrid(newGrid);
 
 			// 오늘의 스티커 복원
-			setSelectedSticker(stickerToRemove);
+			setSelectedSticker(stickerWithLog.sticker);
 		} catch (error) {
 			console.error('Error removing sticker:', error);
 		}
@@ -223,7 +223,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			animationType='none'
 			presentationStyle='fullScreen'
 		>
-			<View style={styles.container} {...modalSwipePanResponder.panHandlers}>
+			<View style={styles.container}>
 				<LinearGradient
 					colors={COLORS.gradients.challenge as [ColorValue, ColorValue]}
 					style={[styles.header, { paddingTop: insets.top }]}

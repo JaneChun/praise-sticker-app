@@ -38,7 +38,7 @@ export const useStickerPage = (
 				const log = logs[i];
 				const sticker = await stickerService.getStickerById(log.stickerId);
 				if (sticker) {
-					newGrid[i] = sticker;
+					newGrid[i] = { sticker, log };
 				}
 			}
 

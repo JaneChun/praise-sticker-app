@@ -64,3 +64,20 @@ export const getStickerById = async (
 		throw error;
 	}
 };
+
+export const getAllStickers = async (): Promise<Sticker[]> => {
+	try {
+		const rows = await db.getAllAsync(
+			'SELECT * FROM stickers ORDER BY pack_id, name',
+		);
+		return rows.map((row: any) => ({
+			id: row.id,
+			packId: row.pack_id,
+			name: row.name,
+			type: row.type,
+			data: row.data,
+		}));
+	} catch (error) {
+		throw error;
+	}
+};

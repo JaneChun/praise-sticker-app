@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { DailyStickerLog } from '../types';
+import { getDate } from '../utils/dateUtils';
 import { db } from './databaseService';
 
 export const addStickerLog = async (
 	challengeId: string,
 	stickerId: string,
 	date: string, // 'YYYY-MM-DD'
-): Promise<string> => {
+): Promise<DailyStickerLog> => {
 	try {
 		// 스티커를 붙일 수 있는지 확인
 		const existing = await db.getFirstAsync(
@@ -18,9 +19,11 @@ export const addStickerLog = async (
 		}
 
 		const id = uuidv4();
+		const createdAt = getDate().toISOString();
+
 		await db.runAsync(
-			'INSERT INTO daily_sticker_logs (id, challenge_id, sticker_id, date) VALUES (?, ?, ?, ?)',
-			[id, challengeId, stickerId, date],
+			'INSERT INTO daily_sticker_logs (id, challenge_id, sticker_id, date, created_at) VALUES (?, ?, ?, ?, ?)',
+			[id, challengeId, stickerId, date, createdAt],
 		);
 
 		// 총 스티커 수 업데이트
@@ -28,7 +31,14 @@ export const addStickerLog = async (
 			'UPDATE user_stats SET total_stickers = total_stickers + 1, updated_at = CURRENT_TIMESTAMP',
 		);
 
-		return id;
+		// 생성된 로그 객체 반환
+		return {
+			id,
+			challengeId,
+			stickerId,
+			date,
+			createdAt,
+		};
 	} catch (error) {
 		throw error;
 	}

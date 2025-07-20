@@ -1,7 +1,11 @@
-import { Challenge, Sticker } from '../database/entities';
+import { Challenge, Sticker, DailyStickerLog } from '../database/entities';
 
 // 스티커 관련 컴포넌트 타입
-export type StickerGridItem = Sticker | null;
+export interface StickerWithLog {
+	sticker: Sticker;
+	log: DailyStickerLog;
+}
+export type StickerGridItem = StickerWithLog | null;
 
 export interface StickerGridProps {
 	stickerGrid: StickerGridItem[];
@@ -10,7 +14,7 @@ export interface StickerGridProps {
 }
 
 export interface StickerSlotItemProps {
-	sticker: Sticker | null;
+	sticker: StickerGridItem;
 	index: number;
 	onLayout: (index: number, event: any) => void;
 	triggerAnimation: number | null;

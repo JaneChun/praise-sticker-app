@@ -1,8 +1,10 @@
+import { runTestScenario } from '@/utils/testDataUtils';
 import { Entypo } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useEffect, useState } from 'react';
 import {
 	Alert,
+	Button,
 	ColorValue,
 	ScrollView,
 	StyleSheet,
@@ -148,6 +150,12 @@ const ChallengesPage: FC = () => {
 				</View>
 			</ScrollView>
 
+			<Button title='test' onPress={() => runTestScenario('weeklyStreak')} />
+			{/* runTestScenario('weeklyStreak')      // 7일 연속
+  runTestScenario('monthlyStreak')     // 30일 연속  
+  runTestScenario('irregularTwoWeeks') // 2주간 불규칙
+  runTestScenario('randomMonth')       // 30일간 랜덤
+  runTestScenario('mixedPattern') */}
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity
 				style={[styles.floatingButton, { bottom: insets.bottom }]}

@@ -70,7 +70,7 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 					onPress={handleStickerPress}
 					activeOpacity={0.7}
 				>
-					<StickerRenderer sticker={sticker} size={SIZES.stickerSlot} />
+					<StickerRenderer sticker={sticker.sticker} size={SIZES.stickerSlot} />
 				</TouchableOpacity>
 			) : (
 				<View
