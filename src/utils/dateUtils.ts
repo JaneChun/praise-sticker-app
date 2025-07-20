@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -13,19 +13,26 @@ dayjs.extend(timezone);
  * 한국 시간 기준 오늘 날짜를 YYYY-MM-DD 형식으로 반환
  */
 export const getTodayString = (): string => {
-  return dayjs().tz('Asia/Seoul').format('YYYY-MM-DD');
+	return dayjs().format('YYYY-MM-DD');
 };
 
 /**
  * 한국 시간 기준 어제 날짜를 YYYY-MM-DD 형식으로 반환
  */
 export const getYesterdayString = (): string => {
-  return dayjs().tz('Asia/Seoul').subtract(1, 'day').format('YYYY-MM-DD');
+	return dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 };
 
 /**
  * 한국 시간 기준 현재 Date 객체 반환
  */
 export const getDate = (): Date => {
-  return dayjs().tz('Asia/Seoul').toDate();
+	return dayjs().toDate();
+};
+
+/**
+ * 한국 시간 기준 현재 ISO 문자열 반환
+ */
+export const getISOString = (): string => {
+	return dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 };
