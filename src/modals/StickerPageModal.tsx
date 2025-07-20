@@ -24,7 +24,12 @@ import { useCelebration } from '../hooks/useCelebration';
 import { useStickerDrag } from '../hooks/useStickerDrag';
 import * as stickerLogService from '../services/stickerLogService';
 import { useUIStore } from '../store';
-import { Sticker, StickerPageModalProps, Timer } from '../types';
+import {
+	Sticker,
+	StickerPageModalProps,
+	StickerWithLog,
+	Timer,
+} from '../types';
 import StickerPackListModal from './StickerPackListModal';
 
 const StickerPageModal: FC<StickerPageModalProps> = ({
@@ -57,7 +62,7 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 		}
 	}, [currentChallenge?.id, stickerPacks]);
 
-	const getNextSlotIndex = (grid: (Sticker | null)[]): number => {
+	const getNextSlotIndex = (grid: Array<StickerWithLog | null>): number => {
 		return grid.findIndex((slot) => slot === null);
 	};
 

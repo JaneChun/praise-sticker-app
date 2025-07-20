@@ -10,6 +10,7 @@ import { COLORS } from '../constants/colors';
 import { SIZES } from '../constants/dimensions';
 import { StickerSlotItemProps } from '../types';
 import StickerRenderer from './StickerRenderer';
+import { getTodayString } from '../utils/dateUtils';
 
 const StickerSlotItem: FC<StickerSlotItemProps> = ({
 	sticker,
@@ -41,10 +42,15 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 		}
 	}, [triggerAnimation, index, sticker, scaleAnim]);
 
-	// 스티커 제거 핸들러
+	// 스티커 제거 핸들러 - 오늘 붙인 스티커만 제거 가능
 	const handleStickerPress = (): void => {
 		if (sticker && onStickerRemove) {
-			onStickerRemove(index);
+			const today = getTodayString();
+			const isToday = sticker.log.date === today;
+			
+			if (isToday) {
+				onStickerRemove(index);
+			}
 		}
 	};
 
@@ -65,10 +71,13 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 		>
 			{sticker ? (
 				<TouchableOpacity
-					style={styles.touchableArea}
+					style={[
+						styles.touchableArea,
+						sticker.log.date === getTodayString() ? styles.removableSticker : styles.permanentSticker
+					]}
 					onLayout={(event) => onLayout(index, event)}
 					onPress={handleStickerPress}
-					activeOpacity={0.7}
+					activeOpacity={sticker.log.date === getTodayString() ? 0.7 : 1}
 				>
 					<StickerRenderer sticker={sticker.sticker} size={SIZES.stickerSlot} />
 				</TouchableOpacity>
@@ -110,6 +119,13 @@ const styles = StyleSheet.create({
 	stickerSlotNumber: {
 		fontSize: 16,
 		color: COLORS.text.light,
+	},
+	removableSticker: {
+		// 오늘 붙인 스티커 (제거 가능)
+	},
+	permanentSticker: {
+		// 이전에 붙인 스티커 (제거 불가능)
+		opacity: 0.9,
 	},
 });
 
