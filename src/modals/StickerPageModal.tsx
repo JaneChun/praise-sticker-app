@@ -2,6 +2,7 @@ import { useStickerPage } from '@/hooks/useStickerPage';
 import { useStickers } from '@/hooks/useStickers';
 import { getTodayString } from '@/utils/dateUtils';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useEffect, useRef, useState } from 'react';
 import {
@@ -74,6 +75,8 @@ const StickerPageModal: FC<StickerPageModalProps> = ({
 			console.warn('Already added sticker for today');
 			return;
 		}
+
+		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
 		try {
 			// 스티커 로그 생성

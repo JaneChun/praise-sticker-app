@@ -74,8 +74,6 @@ export const useStickerDrag = (
 
 	// 드래그 종료 핸들러
 	const handleDragEnd = (): void => {
-		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
 		setIsDragging(false);
 		setDraggingSticker(null);
 		setHoveredSlotIndex(null);
