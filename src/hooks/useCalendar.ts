@@ -4,7 +4,7 @@ import * as stickerLogService from '@/services/stickerLogService';
 import * as userStatsService from '@/services/userStatsService';
 import { UserStats } from '@/types';
 import type { CalendarDayData } from '@/types/database/api';
-import { getDate, getTodayString } from '@/utils/dateUtils';
+import { formatDateToString, getDate, getTodayString } from '@/utils/dateUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useCalendar = () => {
@@ -78,13 +78,16 @@ export const useCalendar = () => {
 	// 최근 연속 일수 계산
 	const getStreakDates = (stickerDates: string[]) => {
 		const streakDates: string[] = [];
-		let currentDate = getDate();
+		let currentDate = new Date(getDate());
 
 		// 오늘부터 역순으로 연속된 날짜 카운트
 		while (true) {
-			const dateString = currentDate.toISOString().split('T')[0];
+			const dateString = formatDateToString(currentDate);
 			if (stickerDates.includes(dateString)) {
 				streakDates.push(dateString);
+
+				// 새로운 Date 객체를 생성하여 하루 전으로 설정
+				currentDate = new Date(currentDate);
 				currentDate.setDate(currentDate.getDate() - 1);
 			} else {
 				break;
@@ -111,10 +114,10 @@ export const useCalendar = () => {
 		const streakDates = getStreakDates(stickerDates);
 
 		// 스티커가 있는 날짜들 마킹
-		stickerDates.forEach((date, index) => {
+		stickerDates.forEach((date) => {
 			const isToday = date === todayString;
 			const isInStreak = streakDates.includes(date);
-			
+
 			// 요일 확인 (0: 일요일, 6: 토요일)
 			const dateObj = new Date(date);
 			const dayOfWeek = dateObj.getDay();
@@ -127,7 +130,7 @@ export const useCalendar = () => {
 				const streakIndex = streakDates.indexOf(date);
 				const isFirstInStreak = streakIndex === 0;
 				const isLastInStreak = streakIndex === streakDates.length - 1;
-				
+
 				// 주간 단위 둥근 처리: 일요일은 왼쪽, 토요일은 오른쪽 둥글게
 				const shouldStartRound = isFirstInStreak || isSunday;
 				const shouldEndRound = isLastInStreak || isSaturday;

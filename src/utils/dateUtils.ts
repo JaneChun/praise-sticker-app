@@ -36,3 +36,10 @@ export const getDate = (): Date => {
 export const getISOString = (): string => {
 	return dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
 };
+
+/**
+ * Date 객체를 한국 시간 기준 YYYY-MM-DD 형식으로 변환
+ */
+export const formatDateToString = (date: Date): string => {
+	return dayjs(date).format('YYYY-MM-DD');
+};
