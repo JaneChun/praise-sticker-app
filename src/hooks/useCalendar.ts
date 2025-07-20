@@ -114,6 +114,12 @@ export const useCalendar = () => {
 		stickerDates.forEach((date, index) => {
 			const isToday = date === todayString;
 			const isInStreak = streakDates.includes(date);
+			
+			// 요일 확인 (0: 일요일, 6: 토요일)
+			const dateObj = new Date(date);
+			const dayOfWeek = dateObj.getDay();
+			const isSunday = dayOfWeek === 0;
+			const isSaturday = dayOfWeek === 6;
 
 			// 오늘까지 연속되는 streak에 포함된 경우에만 period 연결
 			if (isInStreak && streakDates.length > 1) {
@@ -121,12 +127,16 @@ export const useCalendar = () => {
 				const streakIndex = streakDates.indexOf(date);
 				const isFirstInStreak = streakIndex === 0;
 				const isLastInStreak = streakIndex === streakDates.length - 1;
+				
+				// 주간 단위 둥근 처리: 일요일은 왼쪽, 토요일은 오른쪽 둥글게
+				const shouldStartRound = isFirstInStreak || isSunday;
+				const shouldEndRound = isLastInStreak || isSaturday;
 
 				marked[date] = {
 					color: COLORS.secondary,
 					textColor: COLORS.text.white,
-					startingDay: isFirstInStreak,
-					endingDay: isLastInStreak,
+					startingDay: shouldStartRound,
+					endingDay: shouldEndRound,
 				};
 			} else {
 				// 단독 날짜는 원형으로 표시

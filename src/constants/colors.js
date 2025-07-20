@@ -1,8 +1,8 @@
 export const COLORS = {
 	// 기본 색상
 	primary: '#667eea',
-	secondary: '#f88da0',
-	tertiary: '#fcd5ce',
+	secondary: '#ff8fa4',
+	tertiary: '#ffe4df',
 	warning: '#ffd166',
 	error: '#ff6b6b',
 	primary_opacity: '#667eea17',
