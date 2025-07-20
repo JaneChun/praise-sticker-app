@@ -56,13 +56,13 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 	}, [sticker]);
 
 	const onPanResponderGrant = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
 			if (!sticker) return;
 
 			longPressTimer.current = setTimeout(() => {
 				handleDragStart(
-					_gestureState.x0 - 30, // 스티커 크기 보정
-					_gestureState.y0 - 30,
+					gestureState.x0 - 30, // 스티커 크기 보정
+					gestureState.y0 - 30,
 					sticker.sticker,
 				);
 			}, 500);
@@ -71,16 +71,28 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 	);
 
 	const onPanResponderMove = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
+			// 롱프레스 타이머가 진행 중이고 움직임이 감지되면 타이머 취소
+			if (longPressTimer.current && !isDragging) {
+				const dx = Math.abs(gestureState.dx);
+				const dy = Math.abs(gestureState.dy);
+
+				if (dx > 5 || dy > 5) {
+					clearTimeout(longPressTimer.current);
+					longPressTimer.current = null;
+					return; // 드래그 취소
+				}
+			}
+
 			if (isDragging) {
-				updateDragPosition(_gestureState.moveX, _gestureState.moveY);
+				updateDragPosition(gestureState.moveX - 30, gestureState.moveY - 30); // 스티커 크기 보정
 			}
 		},
 		[isDragging, updateDragPosition],
 	);
 
 	const onPanResponderRelease = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
 			// 타이머 정리
 			if (longPressTimer.current) {
 				clearTimeout(longPressTimer.current);
@@ -89,7 +101,7 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 
 			if (!isDragging) return;
 
-			if (isInTodayStickerArea(_gestureState.moveX, _gestureState.moveY)) {
+			if (isInTodayStickerArea(gestureState.moveX, gestureState.moveY)) {
 				removeStickerFromGrid(index);
 			}
 
@@ -98,9 +110,9 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 		[
 			isDragging,
 			isInTodayStickerArea,
-			draggingSticker,
 			removeStickerFromGrid,
 			handleDragEnd,
+			index,
 		],
 	);
 

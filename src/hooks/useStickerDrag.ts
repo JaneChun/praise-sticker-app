@@ -118,10 +118,7 @@ export const useStickerDrag = (
 	// 🔸 드래그 중일 때 위치 업데이트
 	const updateDragPosition = (x: number, y: number): void => {
 		if (isDragging) {
-			dragValue.setValue({
-				x: x - 30, // 스티커 크기 보정
-				y: y - 30,
-			});
+			dragValue.setValue({ x, y });
 		}
 	};
 

@@ -171,13 +171,13 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const longPressTimer = useRef<Timer | null>(null);
 
 	const onPanResponderGrant = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
 			if (!selectedSticker) return;
 
 			longPressTimer.current = setTimeout(() => {
 				handleTodayStickerDragStart(
-					_gestureState.x0 - 30, // 스티커 크기 보정
-					_gestureState.y0 - 30,
+					gestureState.x0 - 30, // 스티커 크기 보정
+					gestureState.y0 - 30,
 					selectedSticker,
 				);
 			}, 500);
@@ -186,16 +186,28 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	);
 
 	const onPanResponderMove = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
+			// 롱프레스 타이머가 진행 중이고 움직임이 감지되면 타이머 취소
+			if (longPressTimer.current && !isDragging) {
+				const dx = Math.abs(gestureState.dx);
+				const dy = Math.abs(gestureState.dy);
+
+				if (dx > 5 || dy > 5) {
+					clearTimeout(longPressTimer.current);
+					longPressTimer.current = null;
+					return; // 드래그 취소
+				}
+			}
+
 			if (isDragging) {
-				updateDragPosition(_gestureState.moveX, _gestureState.moveY);
+				updateDragPosition(gestureState.moveX - 30, gestureState.moveY - 30); // 스티커 크기 보정
 			}
 		},
 		[isDragging, updateDragPosition],
 	);
 
 	const onPanResponderRelease = useCallback(
-		(_: any, _gestureState: any) => {
+		(_: any, gestureState: any) => {
 			// 타이머 정리
 			if (longPressTimer.current) {
 				clearTimeout(longPressTimer.current);
@@ -204,13 +216,19 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 
 			if (!isDragging || !selectedSticker) return;
 
-			if (isInNextSlotArea(_gestureState.moveX, _gestureState.moveY)) {
+			if (isInNextSlotArea(gestureState.moveX, gestureState.moveY)) {
 				addStickerToGrid(nextSlotIndex, selectedSticker);
 			}
 
 			handleDragEnd();
 		},
-		[isDragging, isInNextSlotArea, selectedSticker, addStickerToGrid],
+		[
+			isDragging,
+			isInNextSlotArea,
+			selectedSticker,
+			addStickerToGrid,
+			handleDragEnd,
+		],
 	);
 
 	// 오늘의 스티커 PanResponder
