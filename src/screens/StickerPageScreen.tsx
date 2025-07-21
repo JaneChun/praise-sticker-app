@@ -336,7 +336,10 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 								isDraggingSticker={
 									isDragging &&
 									isDraggingFromSlot &&
-									index === Math.max(0, nextSlotIndex - 1)
+									index ===
+										(nextSlotIndex >= 0
+											? nextSlotIndex - 1
+											: stickerGrid.length - 1)
 								}
 								isDragging={isDragging}
 								draggingSticker={draggingSticker}
