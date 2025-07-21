@@ -44,7 +44,11 @@ const ChallengesPage: FC = () => {
 	// 화면이 포커스될 때마다 카드 새로고침
 	useFocusEffect(
 		useCallback(() => {
-			setRefreshTrigger((prev) => !prev);
+			const fetchChallenges = async () => {
+				await loadChallenges();
+				setRefreshTrigger((prev) => !prev);
+			};
+			fetchChallenges();
 		}, []),
 	);
 
