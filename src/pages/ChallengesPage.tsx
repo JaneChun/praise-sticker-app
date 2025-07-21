@@ -19,7 +19,7 @@ import ViewToggle from '../components/ViewToggle';
 import { COLORS } from '../constants/colors';
 import { StackParamList } from '../navigation/StackNavigator';
 import { deleteChallenge } from '../services/challengeService';
-import { useChallengeStore, useUIStore } from '../store';
+import { useChallengeStore, useDatabaseStore, useUIStore } from '../store';
 import { ActionSheetOption } from '../types';
 
 type NavigationProp = NativeStackNavigationProp<StackParamList>;
@@ -36,6 +36,7 @@ const ChallengesPage: FC = () => {
 	} = useChallengeStore();
 
 	const { setCreateChallengeVisible, setEditChallengeVisible } = useUIStore();
+	const { resetDatabase, isInitialized } = useDatabaseStore();
 
 	const insets = useSafeAreaInsets();
 	const [actionSheetVisible, setActionSheetVisible] = useState(false);
@@ -44,12 +45,15 @@ const ChallengesPage: FC = () => {
 	// 화면이 포커스될 때마다 카드 새로고침
 	useFocusEffect(
 		useCallback(() => {
+			if (!isInitialized) return;
+
 			const fetchChallenges = async () => {
 				await loadChallenges();
 				setRefreshTrigger((prev) => !prev);
 			};
+
 			fetchChallenges();
-		}, []),
+		}, [isInitialized, loadChallenges]),
 	);
 
 	// 카드 Press 핸들러

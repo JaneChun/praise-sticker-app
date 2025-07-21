@@ -26,10 +26,6 @@ export const addStickerLog = async (
 			[id, challengeId, stickerId, date, createdAt],
 		);
 
-		// 총 스티커 수 업데이트
-		await db.runAsync(
-			'UPDATE user_stats SET total_stickers = total_stickers + 1, updated_at = CURRENT_TIMESTAMP',
-		);
 
 		// 생성된 로그 객체 반환
 		return {
@@ -122,10 +118,6 @@ export const removeStickerLog = async (
 			[challengeId, date],
 		);
 
-		// 총 스티커 수 업데이트
-		await db.runAsync(
-			'UPDATE user_stats SET total_stickers = total_stickers - 1, updated_at = CURRENT_TIMESTAMP',
-		);
 
 		return (existing as any).id;
 	} catch (error) {
@@ -177,11 +169,6 @@ export const removeExcessStickerLogs = async (
 					excessIds,
 				);
 
-				// 총 스티커 수 업데이트
-				await db.runAsync(
-					'UPDATE user_stats SET total_stickers = total_stickers - ?, updated_at = CURRENT_TIMESTAMP',
-					[excessIds.length],
-				);
 
 				return excessIds.length;
 			}

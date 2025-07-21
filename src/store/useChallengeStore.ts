@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getChallengeProgress, getChallenges } from '../services';
+import { db } from '../services/databaseService';
 import { Challenge } from '../types';
 
 interface ChallengeState {
@@ -39,6 +40,10 @@ export const useChallengeStore = create<ChallengeStore>((set) => ({
 		set({ loading: true, error: null });
 
 		try {
+			// 데이터베이스가 초기화되지 않은 경우 에러 처리
+			if (!db) {
+				throw new Error('Database not initialized');
+			}
 			const challengeList = await getChallenges();
 
 			// 각 챌린지의 완료 상태를 확인하고 정렬

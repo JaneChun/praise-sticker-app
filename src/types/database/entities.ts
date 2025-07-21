@@ -42,14 +42,6 @@ export interface DailyStickerLog {
 	createdAt: string;
 }
 
-export interface UserStats {
-	id: string;
-	totalStickers: number;
-	currentStreak: number;
-	longestStreak: number;
-	totalChallenges: number;
-	updatedAt: string;
-}
 
 export interface User {
 	id: string;

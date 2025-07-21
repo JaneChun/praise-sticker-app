@@ -1,14 +1,11 @@
 import { COLORS } from '@/constants/colors';
 import * as calendarService from '@/services/calendarService';
 import * as stickerLogService from '@/services/stickerLogService';
-import * as userStatsService from '@/services/userStatsService';
-import { UserStats } from '@/types';
 import type { CalendarDayData } from '@/types/database/api';
 import { formatDateToString, getDate, getTodayString } from '@/utils/dateUtils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useCalendar = () => {
-	const [userStats, setUserStats] = useState<UserStats | null>(null);
 	const [weeklyStickerCnt, setWeeklyStickerCnt] = useState<number>(0);
 	const [streakCnt, setStreakCnt] = useState<number>(0);
 	const [calendarData, setCalendarData] = useState<CalendarDayData>({});
@@ -24,7 +21,6 @@ export const useCalendar = () => {
 
 			try {
 				await Promise.all([
-					loadUserStats(),
 					loadCalendarData(),
 					loadWeeklyStickerCnt(),
 				]);
@@ -36,10 +32,6 @@ export const useCalendar = () => {
 		})();
 	}, [refreshTrigger]);
 
-	const loadUserStats = useCallback(async () => {
-		const stats = await userStatsService.getUserStats();
-		setUserStats(stats);
-	}, []);
 
 	const loadCalendarData = useCallback(async () => {
 		const today = getDate();
@@ -173,7 +165,6 @@ export const useCalendar = () => {
 	}, []);
 
 	return {
-		userStats,
 		markedDates,
 		weeklyStickerCnt,
 		streakCnt,

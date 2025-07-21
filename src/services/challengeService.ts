@@ -41,10 +41,6 @@ export const createChallenge = async (
 			[challengeId, title, icon, days, reward],
 		);
 
-		// 총 도전 수 업데이트
-		await db.runAsync(
-			'UPDATE user_stats SET total_challenges = total_challenges + 1, updated_at = CURRENT_TIMESTAMP',
-		);
 
 		return challengeId;
 	} catch (error) {

@@ -80,19 +80,6 @@ const initDatabase = async (): Promise<void> => {
       )`,
 		);
 
-		// 사용자 통계 테이블
-		await db.execAsync(
-			`CREATE TABLE IF NOT EXISTS user_stats (
-        id TEXT PRIMARY KEY,
-        total_stickers INTEGER DEFAULT 0,
-        current_streak INTEGER DEFAULT 0,
-        longest_streak INTEGER DEFAULT 0,
-        total_challenges INTEGER DEFAULT 0,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`,
-		);
-
-		await insertDefaultUserStats();
 		await insertDefaultStickerPackAndStickers();
 	} catch (error) {
 		throw error;
@@ -195,30 +182,6 @@ export const runMigrations = async (): Promise<void> => {
 // ===================================
 //          기본 데이터 초기화
 // ===================================
-
-const insertDefaultUserStats = async () => {
-	try {
-		// 기존 사용자 통계 존재 여부
-		const existingUserStats = await db.getFirstAsync(
-			'SELECT COUNT(*) as count FROM user_stats',
-		);
-
-		if (existingUserStats && (existingUserStats as any).count > 0) {
-			return;
-		}
-
-		// 사용자 통계 생성
-		const statsId = uuidv4();
-		await db.runAsync(
-			'INSERT INTO user_stats (id, total_stickers, current_streak, longest_streak, total_challenges) VALUES (?, ?, ?, ?, ?)',
-			[statsId, 0, 0, 0, 0],
-		);
-
-		console.log('초기 사용자 통계 데이터가 성공적으로 추가되었습니다.');
-	} catch (error) {
-		console.error('초기 사용자 통계 데이터 삽입 중 오류:', error);
-	}
-};
 
 const insertDefaultStickerPackAndStickers = async (): Promise<void> => {
 	try {
