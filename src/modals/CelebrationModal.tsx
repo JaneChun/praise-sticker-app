@@ -1,7 +1,6 @@
 import ParticleEffect from '@/components/ParticleEffect';
 import { useCelebration } from '@/hooks/useCelebration';
 import { useUIStore } from '@/store';
-import { useChallengeStore } from '@/store/useChallengeStore';
 import { FC, useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
@@ -12,16 +11,12 @@ const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
 	const { celebrationVisible, rewardModalVisible, setRewardModalVisible } =
 		useUIStore();
-	const { selectedChallengeId, challenges } = useChallengeStore();
 
 	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
 	const [showRewardPopup, setShowRewardPopup] = useState<boolean>(false);
 
-	// 현재 챌린지 정보 가져오기
-	const currentChallenge = challenges.find(
-		(challenge) => challenge.id === selectedChallengeId,
-	);
-
+	// celebrationData에서 reward 정보 가져오기
+	const reward = celebrationData?.reward;
 	// 축하 모달이 열릴 때 파티클 효과 실행
 	useEffect(() => {
 		if (celebrationVisible && celebrationData) {
@@ -32,7 +27,7 @@ const CelebrationModal: FC = ({}) => {
 
 			setShowParticleEffect(isFinalMessage);
 			if (isFinalMessage) {
-				if (currentChallenge?.reward) {
+				if (reward) {
 					setShowRewardPopup(true);
 				}
 			}
@@ -106,7 +101,7 @@ const CelebrationModal: FC = ({}) => {
 			{/* 보상 팝업 */}
 			<RewardModal
 				visible={rewardModalVisible}
-				reward={currentChallenge?.reward || ''}
+				reward={reward || ''}
 				onClose={handleRewardClose}
 			/>
 		</Modal>

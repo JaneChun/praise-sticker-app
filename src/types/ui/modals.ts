@@ -20,6 +20,7 @@ export interface CelebrationMessage {
 	subtitle?: string;
 	description: string;
 	icon: string;
+	reward?: string;
 }
 
 // 일별 상세 모달 타입

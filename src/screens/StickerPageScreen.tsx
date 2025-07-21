@@ -93,7 +93,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			}, 300);
 
 			// 6. 축하 메세지 설정
-			showCelebration(stickerCount + 1, currentChallenge?.days || 30);
+			showCelebration(stickerCount + 1, currentChallenge?.days || 30, currentChallenge?.reward);
 		} catch (error) {
 			console.error('Error adding sticker:', error);
 		}

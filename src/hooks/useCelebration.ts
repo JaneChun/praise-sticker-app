@@ -10,7 +10,7 @@ import { CelebrationMessage } from '../types';
 
 interface UseCelebrationReturn {
 	celebrationData: CelebrationMessage | null;
-	showCelebration: (count: number, totalDays: number) => void;
+	showCelebration: (count: number, totalDays: number, reward?: string) => void;
 	clearCelebration: () => void;
 }
 
@@ -18,7 +18,7 @@ export const useCelebration = (): UseCelebrationReturn => {
 	const { celebrationData, setCelebrationData } = useCelebrationStore();
 	const { setCelebrationVisible } = useUIStore();
 
-	const showCelebration = (count: number, totalDays: number): void => {
+	const showCelebration = (count: number, totalDays: number, reward?: string): void => {
 		let celebrationInfo: CelebrationMessage;
 
 		// 1. 스티커를 다 모은 경우 (최종 메시지)
@@ -40,8 +40,14 @@ export const useCelebration = (): UseCelebrationReturn => {
 			}
 		}
 
+		// reward 정보 추가
+		const celebrationWithReward: CelebrationMessage = {
+			...celebrationInfo,
+			reward,
+		};
+
 		// 모달 표시는 하지 않고 데이터만 저장
-		setCelebrationData(celebrationInfo);
+		setCelebrationData(celebrationWithReward);
 	};
 
 	const clearCelebration = () => {
