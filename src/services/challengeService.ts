@@ -85,7 +85,13 @@ export const updateChallenge = async (
 
 export const deleteChallenge = async (challengeId: string): Promise<void> => {
 	try {
+		// 챌린지 삭제
 		await db.runAsync('DELETE FROM challenges WHERE id = ?', [challengeId]);
+
+		// 스티커 로그 삭제
+		await db.runAsync('DELETE FROM daily_sticker_logs WHERE challenge_id = ?', [
+			challengeId,
+		]);
 	} catch (error) {
 		throw error;
 	}
