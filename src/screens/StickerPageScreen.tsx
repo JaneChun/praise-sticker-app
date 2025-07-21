@@ -37,7 +37,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } =
 		useStickerPage(currentChallenge?.id, currentChallenge?.days);
 	const { stickerPacks } = useStickers();
-	const { celebrationData, showCelebration } = useCelebration();
+	const { showCelebration, clearCelebration } = useCelebration();
 
 	const insets = useSafeAreaInsets();
 	const scaleAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
@@ -46,11 +46,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 		null,
 	);
 
-	const {
-		stickerPackModalVisible,
-		setStickerPackModalVisible,
-		setCelebrationVisible,
-	} = useUIStore();
+	const { stickerPackModalVisible, setStickerPackModalVisible } = useUIStore();
 
 	// 스티커팩이 로드된 후 첫 번째 스티커팩에서 랜덤 스티커 자동 선택
 	useEffect(() => {
@@ -64,11 +60,6 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 
 	const handleGoBack = () => {
 		navigation.goBack();
-
-		// celebrationData가 있으면 축하 모달을 표시
-		if (celebrationData) {
-			setCelebrationVisible(true);
-		}
 	};
 
 	/* ────────────────── 스티커 추가, 제거 로직 ────────────────── */
@@ -143,6 +134,9 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 					useNativeDriver: true,
 				}),
 			]).start();
+
+			// 5. 축하 메세지 제거
+			clearCelebration();
 		} catch (error) {
 			console.error('Error removing sticker:', error);
 		}
