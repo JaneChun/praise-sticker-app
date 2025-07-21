@@ -6,7 +6,10 @@
 		"start": "expo start",
 		"android": "expo start --android",
 		"ios": "expo start --ios",
-		"web": "expo start --web"
+		"web": "expo start --web",
+		"build:ios:dev": "eas build --profile development --platform ios ",
+		"build:ios:prod": "eas build --profile production --platform ios ",
+		"deploy": "eas submit -p ios --latest"
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.1.0",
@@ -15,6 +18,7 @@
 		"@react-navigation/native-stack": "^7.3.21",
 		"dayjs": "^1.11.13",
 		"expo": "~53.0.17",
+		"expo-dev-client": "~5.2.4",
 		"expo-haptics": "^14.1.4",
 		"expo-linear-gradient": "^14.1.5",
 		"expo-sqlite": "^15.2.14",
@@ -24,6 +28,7 @@
 		"react-native-calendars": "^1.1313.0",
 		"react-native-get-random-values": "^1.11.0",
 		"react-native-safe-area-context": "^5.5.2",
+		"react-native-screens": "^4.13.1",
 		"uuid": "^11.1.0",
 		"zustand": "^5.0.6"
 	},
