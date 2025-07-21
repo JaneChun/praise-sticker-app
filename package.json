@@ -9,6 +9,7 @@
 		"web": "expo start --web",
 		"build:ios:dev": "eas build --profile development --platform ios ",
 		"build:ios:prod": "eas build --profile production --platform ios ",
+		"predeploy": "npm run build:ios:dev",
 		"deploy": "eas submit -p ios --latest"
 	},
 	"dependencies": {
