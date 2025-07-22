@@ -30,7 +30,6 @@ export const useStickers = () => {
 					return { pack, stickers };
 				}),
 			);
-
 			setStickerPacks(packsWithStickers);
 		} catch (e) {
 			console.error('Error loading sticker packs:', e);

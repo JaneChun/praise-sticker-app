@@ -63,6 +63,8 @@ const CelebrationModal: FC = ({}) => {
 			animationOut='fadeOut'
 			backdropOpacity={0.5}
 			onModalHide={clearCelebration}
+			useNativeDriver={true}
+			hideModalContentWhileAnimating={true}
 		>
 			<View style={styles.overlay}>
 				<View style={styles.celebrationContent}>

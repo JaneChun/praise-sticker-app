@@ -1,15 +1,12 @@
 import { Sticker } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
-import { FC } from 'react';
-import {
-	FlatList,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native';
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetFlatList,
+	BottomSheetView,
+} from '@gorhom/bottom-sheet';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import StickerRenderer from '../components/StickerRenderer';
 import { COLORS } from '../constants/colors';
 import { SIZES } from '../constants/dimensions';
@@ -24,13 +21,32 @@ interface StickerPackListModalProps {
 const StickerPackListModal: FC<StickerPackListModalProps> = ({
 	onStickerSelect,
 }) => {
-	const stickerPackModalVisible = useUIStore(state => state.stickerPackModalVisible);
-	const activeStickerPack = useUIStore(state => state.activeStickerPack);
-	const setStickerPackModalVisible = useUIStore(state => state.setStickerPackModalVisible);
-	const setActiveStickerPack = useUIStore(state => state.setActiveStickerPack);
+	const stickerPackModalVisible = useUIStore(
+		(state) => state.stickerPackModalVisible,
+	);
+	const activeStickerPack = useUIStore((state) => state.activeStickerPack);
+	const setStickerPackModalVisible = useUIStore(
+		(state) => state.setStickerPackModalVisible,
+	);
+	const setActiveStickerPack = useUIStore(
+		(state) => state.setActiveStickerPack,
+	);
 
 	// 스티커 관련 상태 및 훅
 	const { stickerPacks, isLoading, error } = useStickers();
+
+	// Bottom sheet ref and snap points
+	const bottomSheetRef = useRef<BottomSheet>(null);
+	const snapPoints = useMemo(() => ['40%'], []);
+
+	// Visible 상태에 따라 bottom sheet 열기/닫기
+	useEffect(() => {
+		if (stickerPackModalVisible) {
+			bottomSheetRef.current?.expand();
+		} else {
+			bottomSheetRef.current?.close();
+		}
+	}, [stickerPackModalVisible]);
 
 	const handlePackSelect = (pack: StickerPackWithStickers) => {
 		setActiveStickerPack(pack);
@@ -45,53 +61,43 @@ const StickerPackListModal: FC<StickerPackListModalProps> = ({
 		handleClose();
 	};
 
-	const handleClose = () => {
-		setActiveStickerPack(null);
-		setStickerPackModalVisible(false);
-	};
+	const handleClose = useCallback(() => {
+		bottomSheetRef.current?.close();
+	}, []);
 
-	if (isLoading) {
-		return (
-			<Modal
-				visible={stickerPackModalVisible}
-				transparent={true}
-				animationType='fade'
-			>
-				<Pressable style={styles.overlay} onPress={handleClose} />
-				<View style={styles.packModal}>
+	// 닫힘 감지
+	const handleSheetChanges = useCallback(
+		(index: number) => {
+			if (index === -1) {
+				setActiveStickerPack(null);
+				setStickerPackModalVisible(false);
+			}
+		},
+		[setActiveStickerPack, setStickerPackModalVisible],
+	);
+
+	const renderContent = () => {
+		if (isLoading) {
+			return (
+				<BottomSheetView style={styles.packModal}>
 					<Text style={styles.loadingText}>로딩 중...</Text>
-				</View>
-			</Modal>
-		);
-	}
+				</BottomSheetView>
+			);
+		}
 
-	if (error) {
-		return (
-			<Modal
-				visible={stickerPackModalVisible}
-				transparent={true}
-				animationType='fade'
-			>
-				<Pressable style={styles.overlay} onPress={handleClose} />
-				<View style={styles.packModal}>
+		if (error) {
+			return (
+				<BottomSheetView style={styles.packModal}>
 					<Text style={styles.errorText}>{error}</Text>
-				</View>
-			</Modal>
-		);
-	}
+				</BottomSheetView>
+			);
+		}
 
-	return (
-		<Modal
-			visible={stickerPackModalVisible}
-			transparent={true}
-			animationType='fade'
-		>
-			<Pressable style={styles.overlay} onPress={handleClose} />
-
-			<View style={styles.packModal}>
-				{/* 스티커팩 목록 */}
-				{activeStickerPack === null ? (
-					<FlatList
+		// 스티커팩 목록
+		if (activeStickerPack === null) {
+			return (
+				<BottomSheetView style={styles.packModal}>
+					<BottomSheetFlatList
 						data={stickerPacks}
 						keyExtractor={(item) => item.pack.id}
 						numColumns={2}
@@ -109,58 +115,94 @@ const StickerPackListModal: FC<StickerPackListModalProps> = ({
 							</TouchableOpacity>
 						)}
 					/>
-				) : (
-					/* 스티커 그리드 */
-					<>
-						<View style={styles.packHeader}>
-							<TouchableOpacity onPress={handleBackToPacks}>
-								<Ionicons
-									name='chevron-back'
-									size={24}
-									color={COLORS.text.primary}
-								/>
-							</TouchableOpacity>
-							<Text style={styles.packTitle}>
-								{activeStickerPack.pack.name}
-							</Text>
-						</View>
+				</BottomSheetView>
+			);
+		}
 
-						<FlatList
-							data={activeStickerPack.stickers}
-							keyExtractor={(item) => item.id}
-							numColumns={4}
-							contentContainerStyle={styles.stickerList}
-							renderItem={({ item }) => (
-								<TouchableOpacity
-									style={styles.stickerCell}
-									onPress={() => handleStickerSelect(item)}
-								>
-									<StickerRenderer sticker={item} size={48} />
-								</TouchableOpacity>
-							)}
+		// 스티커 그리드
+		return (
+			<BottomSheetView style={styles.packModal}>
+				<View style={styles.packHeader}>
+					<TouchableOpacity onPress={handleBackToPacks}>
+						<Ionicons
+							name='chevron-back'
+							size={24}
+							color={COLORS.text.primary}
 						/>
-					</>
-				)}
-			</View>
-		</Modal>
+					</TouchableOpacity>
+					<Text style={styles.packTitle}>{activeStickerPack.pack.name}</Text>
+				</View>
+
+				<BottomSheetFlatList
+					data={activeStickerPack.stickers}
+					keyExtractor={(item) => item.id}
+					numColumns={4}
+					contentContainerStyle={styles.stickerList}
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							style={styles.stickerCell}
+							onPress={() => handleStickerSelect(item)}
+						>
+							<StickerRenderer sticker={item} size={48} />
+						</TouchableOpacity>
+					)}
+				/>
+			</BottomSheetView>
+		);
+	};
+
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				pressBehavior='close'
+			/>
+		),
+		[],
+	);
+
+	return (
+		<>
+			{/* Backdrop */}
+			{/* {stickerPackModalVisible && (
+				<Pressable
+					style={styles.backdrop}
+					onPress={handleClose}
+				/>
+			)} */}
+
+			<BottomSheet
+				ref={bottomSheetRef}
+				index={-1}
+				snapPoints={snapPoints}
+				onChange={handleSheetChanges}
+				enableOverDrag={false}
+				enablePanDownToClose={true}
+				backdropComponent={renderBackdrop}
+			>
+				{renderContent()}
+			</BottomSheet>
+		</>
 	);
 };
 
 const styles = StyleSheet.create({
-	overlay: {
-		flex: 1,
-		backgroundColor: '#00000055',
-	},
-	packModal: {
+	backdrop: {
 		position: 'absolute',
-		bottom: 0,
+		top: 0,
 		left: 0,
 		right: 0,
-		maxHeight: '60%',
+		bottom: 0,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		zIndex: 1,
+	},
+	packModal: {
+		flex: 1,
 		backgroundColor: COLORS.background.primary,
-		borderTopLeftRadius: 16,
-		borderTopRightRadius: 16,
 		padding: 16,
+		paddingBottom: 32,
 	},
 	packList: {
 		gap: 12,

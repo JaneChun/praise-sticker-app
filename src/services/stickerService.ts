@@ -24,7 +24,7 @@ export const getStickersByPackId = async (
 export const getStickerPacks = async (): Promise<StickerPack[]> => {
 	try {
 		const rows = await db.getAllAsync(
-			'SELECT * FROM sticker_packs WHERE is_active = 1 ORDER BY created_at DESC',
+			'SELECT * FROM sticker_packs WHERE is_active = 1 ORDER BY name ASC',
 		);
 		return rows.map((row: any) => ({
 			id: row.id,

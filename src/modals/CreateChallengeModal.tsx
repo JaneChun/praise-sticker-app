@@ -1,12 +1,16 @@
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetHandle,
+	BottomSheetScrollView,
+	BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useEffect } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
 	Alert,
 	ColorValue,
 	KeyboardAvoidingView,
-	Modal,
 	Platform,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -30,8 +34,11 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	existingChallenge,
 }) => {
 	const { loadChallenges } = useChallengeStore();
-
+	const bottomSheetRef = useRef<BottomSheet>(null);
 	const insets = useSafeAreaInsets();
+
+	// Bottom sheet snap points
+	const snapPoints = useMemo(() => ['90%'], []);
 
 	const {
 		challengeTitle,
@@ -51,6 +58,15 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 		isValid,
 		getFinalDays,
 	} = useChallengeForm();
+
+	// Visible 상태에 따라 bottom sheet 열기/닫기
+	useEffect(() => {
+		if (visible) {
+			bottomSheetRef.current?.expand();
+		} else {
+			bottomSheetRef.current?.close();
+		}
+	}, [visible]);
 
 	// 수정 모드일 때 기존 값으로 초기화
 	useEffect(() => {
@@ -103,185 +119,222 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 		}
 	};
 
-	const handleClose = () => {
-		setVisible(false);
-		resetForm();
-	};
+	const handleClose = useCallback(() => {
+		bottomSheetRef.current?.close();
+	}, []);
+
+	// 닫힘 감지
+	const handleSheetChanges = useCallback(
+		(index: number) => {
+			if (index === -1) {
+				setVisible(false);
+				resetForm();
+			}
+		},
+		[resetForm, setVisible],
+	);
+
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				pressBehavior='close'
+			/>
+		),
+		[],
+	);
+
+	const renderHandle = useCallback(
+		(props: any) => (
+			<LinearGradient
+				colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 0 }}
+			>
+				<BottomSheetHandle {...props} />
+			</LinearGradient>
+		),
+		[],
+	);
 
 	return (
-		<Modal
-			visible={visible}
-			animationType='slide'
-			presentationStyle='pageSheet'
-			onRequestClose={handleClose}
+		<BottomSheet
+			ref={bottomSheetRef}
+			index={-1}
+			snapPoints={snapPoints}
+			onChange={handleSheetChanges}
+			enableOverDrag={false}
+			enablePanDownToClose={true}
+			backdropComponent={renderBackdrop}
+			handleComponent={renderHandle}
+			style={styles.container}
 		>
-			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-				keyboardVerticalOffset={insets.bottom}
-			>
-				<LinearGradient
-					colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
-					style={[styles.header, { paddingTop: insets.top }]}
-					start={{ x: 0, y: 0.3 }}
+			<BottomSheetView style={styles.contentContainer}>
+				<KeyboardAvoidingView
+					style={{ flex: 1 }}
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					keyboardVerticalOffset={insets.bottom}
 				>
-					{/* 드래그 인디케이터 */}
-					<View style={styles.dragIndicator} />
+					<LinearGradient
+						colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
+						style={styles.header}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 1, y: 0 }}
+					>
+						<Text style={styles.headerTitle}>
+							{editMode ? '칭찬 미션 수정하기' : '칭찬 미션 만들기'}
+						</Text>
+						<Text style={styles.headerSubtitle}>
+							{editMode
+								? '목표를 자유롭게 수정할 수 있어요'
+								: '나만의 목표를 설정해보세요'}
+						</Text>
+					</LinearGradient>
 
-					<Text style={styles.headerTitle}>
-						{editMode ? '칭찬 미션 수정하기' : '칭찬 미션 만들기'}
-					</Text>
-					<Text style={styles.headerSubtitle}>
-						{editMode
-							? '목표를 자유롭게 수정할 수 있어요'
-							: '나만의 목표를 설정해보세요'}
-					</Text>
-				</LinearGradient>
+					<BottomSheetScrollView
+						style={styles.createForm}
+						keyboardShouldPersistTaps='handled'
+					>
+						<View style={styles.formSection}>
+							<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
+							<TextInput
+								style={styles.formInput}
+								placeholder='예: 매일 물 2L 마시기'
+								placeholderTextColor={COLORS.text.placeholder}
+								value={challengeTitle}
+								onChangeText={(text) => setChallengeTitle(text)}
+								maxLength={20}
+							/>
+							<Text style={styles.formHint}>작은 목표라도 좋아요</Text>
+						</View>
 
-				<ScrollView
-					style={styles.createForm}
-					keyboardShouldPersistTaps='handled'
-				>
-					<View style={styles.formSection}>
-						<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
-						<TextInput
-							style={styles.formInput}
-							placeholder='예: 매일 물 2L 마시기'
-							placeholderTextColor={COLORS.text.placeholder}
-							value={challengeTitle}
-							onChangeText={(text) => setChallengeTitle(text)}
-							maxLength={20}
-						/>
-						<Text style={styles.formHint}>작은 목표라도 좋아요</Text>
-					</View>
-
-					<View style={styles.formSection}>
-						<Text style={styles.formLabel}>얼마나 이어가 보고 싶나요?</Text>
-						<View style={styles.daysSelector}>
-							{CHALLENGE_DURATIONS.map((days) => (
+						<View style={styles.formSection}>
+							<Text style={styles.formLabel}>얼마나 이어가 보고 싶나요?</Text>
+							<View style={styles.daysSelector}>
+								{CHALLENGE_DURATIONS.map((days) => (
+									<TouchableOpacity
+										key={days}
+										style={[
+											styles.daysBtn,
+											selectedDays === days && styles.daysBtnActive,
+										]}
+										onPress={() => {
+											setSelectedDays(days);
+											setShowCustomDays(false);
+										}}
+									>
+										<Text
+											style={[
+												styles.daysBtnText,
+												selectedDays === days && styles.daysBtnTextActive,
+											]}
+										>
+											{days}일
+										</Text>
+									</TouchableOpacity>
+								))}
 								<TouchableOpacity
-									key={days}
 									style={[
 										styles.daysBtn,
-										selectedDays === days && styles.daysBtnActive,
+										selectedDays === 'custom' && styles.daysBtnActive,
 									]}
 									onPress={() => {
-										setSelectedDays(days);
-										setShowCustomDays(false);
+										setSelectedDays('custom');
+										setShowCustomDays(true);
 									}}
 								>
 									<Text
 										style={[
 											styles.daysBtnText,
-											selectedDays === days && styles.daysBtnTextActive,
+											selectedDays === 'custom' && styles.daysBtnTextActive,
 										]}
 									>
-										{days}일
+										직접입력
 									</Text>
 								</TouchableOpacity>
-							))}
-							<TouchableOpacity
-								style={[
-									styles.daysBtn,
-									selectedDays === 'custom' && styles.daysBtnActive,
-								]}
-								onPress={() => {
-									setSelectedDays('custom');
-									setShowCustomDays(true);
-								}}
-							>
-								<Text
-									style={[
-										styles.daysBtnText,
-										selectedDays === 'custom' && styles.daysBtnTextActive,
-									]}
-								>
-									직접입력
-								</Text>
-							</TouchableOpacity>
+							</View>
+							{showCustomDays && (
+								<TextInput
+									style={styles.formInput}
+									placeholder='원하는 일수를 입력해주세요'
+									placeholderTextColor={COLORS.text.placeholder}
+									value={customDays}
+									onChangeText={setCustomDays}
+									keyboardType='numeric'
+								/>
+							)}
 						</View>
-						{showCustomDays && (
+
+						<View style={styles.formSection}>
+							<Text style={styles.formLabel}>아이콘</Text>
+							<View style={styles.iconSelector}>
+								{CHALLENGE_ICONS.map((icon) => (
+									<TouchableOpacity
+										key={icon}
+										style={[
+											styles.iconItem,
+											selectedIcon === icon && styles.iconItemActive,
+										]}
+										onPress={() => setSelectedIcon(icon)}
+									>
+										<Text style={styles.iconItemText}>{icon}</Text>
+									</TouchableOpacity>
+								))}
+							</View>
+						</View>
+
+						<View style={styles.formSection}>
+							<Text style={styles.formLabel}>
+								칭찬 스티커를 다 모은 보상 💝
+							</Text>
 							<TextInput
 								style={styles.formInput}
-								placeholder='원하는 일수를 입력해주세요'
+								placeholder='예: 맛있는 디저트 먹기, 갖고 싶은 것 사기'
 								placeholderTextColor={COLORS.text.placeholder}
-								value={customDays}
-								onChangeText={setCustomDays}
-								keyboardType='numeric'
+								value={challengeReward}
+								onChangeText={setChallengeReward}
+								maxLength={30}
 							/>
-						)}
-					</View>
-
-					<View style={styles.formSection}>
-						<Text style={styles.formLabel}>아이콘</Text>
-						<View style={styles.iconSelector}>
-							{CHALLENGE_ICONS.map((icon) => (
-								<TouchableOpacity
-									key={icon}
-									style={[
-										styles.iconItem,
-										selectedIcon === icon && styles.iconItemActive,
-									]}
-									onPress={() => setSelectedIcon(icon)}
-								>
-									<Text style={styles.iconItemText}>{icon}</Text>
-								</TouchableOpacity>
-							))}
+							<Text style={styles.formHint}>
+								스티커 다 모으면 받을 나만의 보상을 생각해봐요 :)
+							</Text>
 						</View>
-					</View>
+					</BottomSheetScrollView>
 
-					<View style={styles.formSection}>
-						<Text style={styles.formLabel}>칭찬 스티커를 다 모은 보상 💝</Text>
-						<TextInput
-							style={styles.formInput}
-							placeholder='예: 맛있는 디저트 먹기, 갖고 싶은 것 사기'
-							placeholderTextColor={COLORS.text.placeholder}
-							value={challengeReward}
-							onChangeText={setChallengeReward}
-							maxLength={30}
-						/>
-						<Text style={styles.formHint}>
-							스티커 다 모으면 받을 나만의 보상을 생각해봐요 :)
-						</Text>
+					<View style={styles.createActions}>
+						<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
+							<Text style={styles.cancelBtnText}>취소</Text>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
+							onPress={handleSubmit}
+							disabled={!isValid}
+						>
+							<Text style={styles.createBtnText}>
+								{editMode ? '수정 완료' : '미션 시작하기'}
+							</Text>
+						</TouchableOpacity>
 					</View>
-				</ScrollView>
-			</KeyboardAvoidingView>
-
-			<View style={styles.createActions}>
-				<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
-					<Text style={styles.cancelBtnText}>취소</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
-					onPress={handleSubmit}
-					disabled={!isValid}
-				>
-					<Text style={styles.createBtnText}>
-						{editMode ? '수정 완료' : '미션 시작하기'}
-					</Text>
-				</TouchableOpacity>
-			</View>
-		</Modal>
+				</KeyboardAvoidingView>
+			</BottomSheetView>
+		</BottomSheet>
 	);
 };
 
 const styles = StyleSheet.create({
 	container: {
+		borderTopLeftRadius: 16,
+		borderTopRightRadius: 16,
+		overflow: 'hidden',
+	},
+	contentContainer: {
 		flex: 1,
-		backgroundColor: COLORS.background.primary,
 	},
 	header: {
 		padding: 20,
-		paddingTop: 40,
-	},
-	dragIndicator: {
-		position: 'absolute',
-		top: 10,
-		width: 60,
-		height: 4,
-		backgroundColor: 'rgba(255, 255, 255, 0.3)',
-		borderRadius: 2,
-		alignSelf: 'center',
+		paddingTop: 20,
 	},
 	headerTitle: {
 		fontSize: 24,

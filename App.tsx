@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import StackNavigator from './src/navigation/StackNavigator';
@@ -27,18 +28,20 @@ const App = () => {
 	}, [isInitialized, loadChallenges]);
 
 	return (
-		<SafeAreaProvider>
-			<View style={styles.container}>
-				<StatusBar
-					barStyle='light-content'
-					backgroundColor='transparent'
-					translucent
-				/>
-				<NavigationContainer>
-					<StackNavigator />
-				</NavigationContainer>
-			</View>
-		</SafeAreaProvider>
+		<GestureHandlerRootView style={styles.container}>
+			<SafeAreaProvider>
+				<View style={styles.container}>
+					<StatusBar
+						barStyle='light-content'
+						backgroundColor='transparent'
+						translucent
+					/>
+					<NavigationContainer>
+						<StackNavigator />
+					</NavigationContainer>
+				</View>
+			</SafeAreaProvider>
+		</GestureHandlerRootView>
 	);
 };
 
