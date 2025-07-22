@@ -4,6 +4,7 @@ import BottomSheet, {
 	BottomSheetScrollView,
 	BottomSheetView,
 } from '@gorhom/bottom-sheet';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
@@ -36,6 +37,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	const { loadChallenges } = useChallengeStore();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const insets = useSafeAreaInsets();
+	const bottomTabBarHeight = useBottomTabBarHeight();
 
 	// Bottom sheet snap points
 	const snapPoints = useMemo(() => ['90%'], []);
@@ -175,7 +177,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 				<KeyboardAvoidingView
 					style={{ flex: 1 }}
 					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-					keyboardVerticalOffset={insets.bottom}
+					keyboardVerticalOffset={bottomTabBarHeight + 20}
 				>
 					<LinearGradient
 						colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
@@ -427,7 +429,7 @@ const styles = StyleSheet.create({
 	},
 	createActions: {
 		flexDirection: 'row',
-		padding: 20,
+		padding: 10,
 		backgroundColor: COLORS.background.primary,
 	},
 	cancelBtn: {
