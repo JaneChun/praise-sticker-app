@@ -35,8 +35,12 @@ const ChallengesPage: FC = () => {
 		loadChallenges,
 	} = useChallengeStore();
 
-	const setCreateChallengeVisible = useUIStore(state => state.setCreateChallengeVisible);
-	const setEditChallengeVisible = useUIStore(state => state.setEditChallengeVisible);
+	const setCreateChallengeVisible = useUIStore(
+		(state) => state.setCreateChallengeVisible,
+	);
+	const setEditChallengeVisible = useUIStore(
+		(state) => state.setEditChallengeVisible,
+	);
 	const { resetDatabase, isInitialized } = useDatabaseStore();
 
 	const insets = useSafeAreaInsets();
@@ -161,7 +165,7 @@ const ChallengesPage: FC = () => {
 				</View>
 			</ScrollView>
 
-			{/* <Button title='test' onPress={() => runTestScenario('mixedPattern')} /> */}
+			{/* <Button title='test' onPress={() => runTestScenario()} /> */}
 
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity

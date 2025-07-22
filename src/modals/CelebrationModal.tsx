@@ -2,16 +2,22 @@ import ParticleEffect from '@/components/ParticleEffect';
 import { useCelebration } from '@/hooks/useCelebration';
 import { useUIStore } from '@/store';
 import { FC, useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Modal from 'react-native-modal';
 import { COLORS } from '../constants/colors';
 import { FINAL_MESSAGES } from '../constants/data';
 import RewardModal from './RewardModal';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
-	const celebrationVisible = useUIStore(state => state.celebrationVisible);
-	const rewardModalVisible = useUIStore(state => state.rewardModalVisible);
-	const setRewardModalVisible = useUIStore(state => state.setRewardModalVisible);
+	const celebrationVisible = useUIStore((state) => state.celebrationVisible);
+	const setCelebrationVisible = useUIStore(
+		(state) => state.setCelebrationVisible,
+	);
+	const rewardModalVisible = useUIStore((state) => state.rewardModalVisible);
+	const setRewardModalVisible = useUIStore(
+		(state) => state.setRewardModalVisible,
+	);
 
 	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
 	const [showRewardPopup, setShowRewardPopup] = useState<boolean>(false);
@@ -43,24 +49,20 @@ const CelebrationModal: FC = ({}) => {
 
 		setShowParticleEffect(false);
 		setShowRewardPopup(false);
-		clearCelebration();
+		setCelebrationVisible(false);
 	};
 
 	const handleRewardOpen = () => {
 		setRewardModalVisible(true);
 	};
 
-	const handleRewardClose = () => {
-		setRewardModalVisible(false);
-		handleClose();
-	};
-
 	return (
 		<Modal
-			visible={celebrationVisible}
-			transparent
-			animationType='fade'
-			onRequestClose={handleClose}
+			isVisible={celebrationVisible}
+			animationIn='fadeIn'
+			animationOut='fadeOut'
+			backdropOpacity={0.5}
+			onModalHide={clearCelebration}
 		>
 			<View style={styles.overlay}>
 				<View style={styles.celebrationContent}>
@@ -108,7 +110,7 @@ const CelebrationModal: FC = ({}) => {
 			<RewardModal
 				visible={rewardModalVisible}
 				reward={reward || ''}
-				onClose={handleRewardClose}
+				onClose={handleClose}
 			/>
 		</Modal>
 	);
@@ -116,8 +118,6 @@ const CelebrationModal: FC = ({}) => {
 
 const styles = StyleSheet.create({
 	overlay: {
-		flex: 1,
-		backgroundColor: COLORS.background.opacity,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},

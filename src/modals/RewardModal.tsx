@@ -1,3 +1,4 @@
+import { useUIStore } from '@/store';
 import { FC, useEffect, useRef } from 'react';
 import {
 	Animated,
@@ -19,6 +20,10 @@ const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
 	const rewardPopupScale = useRef(new Animated.Value(0)).current;
 	const rewardPopupOpacity = useRef(new Animated.Value(0)).current;
 
+	const setRewardModalVisible = useUIStore(
+		(state) => state.setRewardModalVisible,
+	);
+
 	useEffect(() => {
 		if (visible) {
 			// Hero 애니메이션 실행
@@ -39,6 +44,8 @@ const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
 	}, [visible]);
 
 	const handleClose = () => {
+		onClose();
+
 		// 닫기 애니메이션
 		Animated.parallel([
 			Animated.timing(rewardPopupScale, {
@@ -55,8 +62,7 @@ const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
 			// 애니메이션 값 리셋
 			rewardPopupScale.setValue(0);
 			rewardPopupOpacity.setValue(0);
-
-			onClose();
+			setRewardModalVisible(false);
 		});
 	};
 
@@ -96,7 +102,6 @@ const styles = StyleSheet.create({
 		left: 0,
 		right: 0,
 		bottom: 0,
-		backgroundColor: COLORS.background.opacity,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
