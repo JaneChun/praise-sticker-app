@@ -10,6 +10,7 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	Alert,
 	ColorValue,
+	Keyboard,
 	KeyboardAvoidingView,
 	Platform,
 	StyleSheet,
@@ -68,6 +69,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 			bottomSheetRef.current?.expand();
 		} else {
 			bottomSheetRef.current?.close();
+			Keyboard.dismiss();
 		}
 	}, [visible]);
 
