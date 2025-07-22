@@ -2,6 +2,7 @@ import { useStickerPage } from '@/hooks/useStickerPage';
 import { useStickers } from '@/hooks/useStickers';
 import { getTodayString } from '@/utils/dateUtils';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -46,8 +47,20 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 		null,
 	);
 
-	const stickerPackModalVisible = useUIStore(state => state.stickerPackModalVisible);
-	const setStickerPackModalVisible = useUIStore(state => state.setStickerPackModalVisible);
+	const stickerPackModalVisible = useUIStore(
+		(state) => state.stickerPackModalVisible,
+	);
+	const setStickerPackModalVisible = useUIStore(
+		(state) => state.setStickerPackModalVisible,
+	);
+
+	useFocusEffect(
+		useCallback(() => {
+			return () => {
+				setStickerPackModalVisible(false);
+			};
+		}, [setStickerPackModalVisible]),
+	);
 
 	// 스티커팩이 로드된 후 첫 번째 스티커팩에서 랜덤 스티커 자동 선택
 	useEffect(() => {
@@ -94,7 +107,11 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			}, 300);
 
 			// 6. 축하 메세지 설정
-			showCelebration(stickerCount + 1, currentChallenge?.days || 30, currentChallenge?.reward);
+			showCelebration(
+				stickerCount + 1,
+				currentChallenge?.days || 30,
+				currentChallenge?.reward,
+			);
 		} catch (error) {
 			console.error('Error adding sticker:', error);
 		}
