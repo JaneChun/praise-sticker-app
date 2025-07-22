@@ -9,8 +9,8 @@ export const COLORS = {
 
 	// 그라데이션 색상
 	gradients: {
-		primary: ['#667eea', '#764ba2'],
-		secondary: ['#ff9a9e', '#fecfef'],
+		primary: ['#667eea', '#bfa3ff'],
+		secondary: ['#ff999c', '#fecfef'],
 		calendar: ['#fcb69f', '#ffe1ba'],
 		challenge: ['#cfcfcf', '#f5e8ec'],
 	},

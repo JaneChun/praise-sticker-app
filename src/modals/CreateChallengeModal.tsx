@@ -83,11 +83,6 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	}, [editMode, existingChallenge, visible]);
 
 	const handleSubmit = async (): Promise<void> => {
-		if (!isValid) {
-			Alert.alert('알림', '미션 이름을 입력해주세요.');
-			return;
-		}
-
 		try {
 			const finalDays = getFinalDays();
 
@@ -289,11 +284,12 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 								{showCustomDays && (
 									<TextInput
 										style={styles.formInput}
-										placeholder='원하는 일수를 입력해주세요'
+										placeholder='원하는 일수를 입력해주세요 (최대 365일)'
 										placeholderTextColor={COLORS.text.placeholder}
 										value={customDays}
 										onChangeText={setCustomDays}
 										keyboardType='numeric'
+										maxLength={3}
 									/>
 								)}
 							</View>
@@ -446,7 +442,7 @@ const styles = StyleSheet.create({
 		backgroundColor: COLORS.background.primary,
 		borderWidth: 1,
 		borderColor: COLORS.border.primary,
-		borderRadius: 12,
+		borderRadius: 16,
 		overflow: 'hidden',
 		padding: 16,
 	},

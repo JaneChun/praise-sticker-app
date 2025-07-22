@@ -32,6 +32,24 @@ export const useChallengeForm = (): UseChallengeFormReturn => {
 	const [customDays, setCustomDays] = useState<string>('');
 	const [showCustomDays, setShowCustomDays] = useState<boolean>(false);
 
+	// 커스텀 일수 설정 (365일 제한)
+	const setCustomDaysWithLimit = (value: string) => {
+		// 숫자만 허용
+		const numericValue = value.replace(/[^0-9]/g, '');
+
+		if (numericValue === '') {
+			setCustomDays('');
+			return;
+		}
+
+		const days = parseInt(numericValue);
+		if (days > 365) {
+			setCustomDays('365');
+		} else {
+			setCustomDays(numericValue);
+		}
+	};
+
 	// 폼 리셋
 	const resetForm = (): void => {
 		setChallengeTitle('');
@@ -55,18 +73,23 @@ export const useChallengeForm = (): UseChallengeFormReturn => {
 			setShowCustomDays(false);
 		} else {
 			setSelectedDays('custom');
-			setCustomDays(challenge.days.toString());
+			setCustomDaysWithLimit(challenge.days.toString());
 			setShowCustomDays(true);
 		}
 	};
 
 	// 최종 일수 계산
 	const getFinalDays = (): number => {
-		return selectedDays === 'custom' ? parseInt(customDays) || 0 : selectedDays;
+		const days =
+			selectedDays === 'custom' ? parseInt(customDays) || 0 : selectedDays;
+		return Math.min(days, 365);
 	};
 
 	// 폼 유효성 검증
-	const isValid = challengeTitle.trim().length > 0 && getFinalDays() > 0;
+	const isValid =
+		challengeTitle.trim().length > 0 &&
+		getFinalDays() > 0 &&
+		getFinalDays() <= 365;
 
 	return {
 		// 폼 상태
@@ -79,7 +102,7 @@ export const useChallengeForm = (): UseChallengeFormReturn => {
 		selectedIcon,
 		setSelectedIcon,
 		customDays,
-		setCustomDays,
+		setCustomDays: setCustomDaysWithLimit,
 		showCustomDays,
 		setShowCustomDays,
 
