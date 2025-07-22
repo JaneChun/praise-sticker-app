@@ -97,5 +97,5 @@
 <br/>
 
 ## 📷 스크린샷
-<img src='https://github.com/user-attachments/assets/4f95b875-55c8-4479-a209-64f984950a72' width='500'/>
+<img src='https://github.com/user-attachments/assets/0babda4d-ca82-426c-b403-b05eac8cb2a4' width='500'/>
 
