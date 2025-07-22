@@ -16,16 +16,21 @@ const ChallengesScreen: FC = () => {
 		editChallengeVisible,
 		setCreateChallengeVisible,
 		setEditChallengeVisible,
+		celebrationVisible,
 		setCelebrationVisible,
 	} = useUIStore();
 
-	const { celebrationData } = useCelebration();
+	const { celebrationData, clearCelebration } = useCelebration();
 
 	useFocusEffect(
 		useCallback(() => {
-			if (celebrationData) {
+			if (celebrationData && !celebrationVisible) {
 				setCelebrationVisible(true);
 			}
+
+			return () => {
+				clearCelebration();
+			};
 		}, [celebrationData, setCelebrationVisible]),
 	);
 

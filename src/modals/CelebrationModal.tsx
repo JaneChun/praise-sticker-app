@@ -55,7 +55,12 @@ const CelebrationModal: FC = ({}) => {
 	};
 
 	return (
-		<Modal visible={celebrationVisible} transparent animationType='fade'>
+		<Modal
+			visible={celebrationVisible}
+			transparent
+			animationType='fade'
+			onRequestClose={handleClose}
+		>
 			<View style={styles.overlay}>
 				<View style={styles.celebrationContent}>
 					<View style={styles.celebrationIcon}>

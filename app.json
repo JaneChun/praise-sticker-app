@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Podo",
 		"slug": "podo",
-		"version": "1.0.2",
+		"version": "1.0.8",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "light",
@@ -10,7 +10,7 @@
 		"splash": {
 			"image": "./assets/splash.png",
 			"resizeMode": "contain",
-			"backgroundColor": "#ffffff"
+			"backgroundColor": "#928FFF"
 		},
 		"ios": {
 			"bundleIdentifier": "com.janechun.podo",
