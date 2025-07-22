@@ -6,7 +6,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	Alert,
 	ColorValue,
@@ -18,13 +18,13 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/colors';
-import { CHALLENGE_DURATIONS, CHALLENGE_ICONS } from '../constants/data';
-import { SCREEN_WIDTH } from '../constants/dimensions';
+import { CHALLENGE_DURATIONS } from '../constants/data';
 import { useChallengeForm } from '../hooks/useChallengeForm';
 import { createChallenge, updateChallenge } from '../services/challengeService';
 
+import EmojiSelector from 'react-native-emoji-selector';
+import Modal from 'react-native-modal';
 import { useChallengeStore } from '../store';
 import { CreateChallengeModalProps } from '../types';
 
@@ -36,8 +36,9 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 }) => {
 	const { loadChallenges } = useChallengeStore();
 	const bottomSheetRef = useRef<BottomSheet>(null);
-	const insets = useSafeAreaInsets();
 	const bottomTabBarHeight = useBottomTabBarHeight();
+
+	const [showEmojiSelector, setShowEmojiSelector] = useState<boolean>(false);
 
 	// Bottom sheet snap points
 	const snapPoints = useMemo(() => ['90%'], []);
@@ -130,6 +131,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 		(index: number) => {
 			if (index === -1) {
 				setVisible(false);
+				setShowEmojiSelector(false);
 				resetForm();
 			}
 		},
@@ -162,166 +164,184 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	);
 
 	return (
-		<BottomSheet
-			ref={bottomSheetRef}
-			index={-1}
-			snapPoints={snapPoints}
-			onChange={handleSheetChanges}
-			enableOverDrag={false}
-			enablePanDownToClose={true}
-			backdropComponent={renderBackdrop}
-			handleComponent={renderHandle}
-			style={styles.container}
-		>
-			<BottomSheetView style={styles.contentContainer}>
-				<KeyboardAvoidingView
-					style={{ flex: 1 }}
-					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-					keyboardVerticalOffset={bottomTabBarHeight + 20}
+		<>
+			{showEmojiSelector && (
+				<Modal
+					isVisible={showEmojiSelector}
+					animationIn='fadeIn'
+					animationOut='fadeOut'
+					onBackdropPress={() => setShowEmojiSelector(false)}
+					backdropOpacity={0.5}
 				>
-					<LinearGradient
-						colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
-						style={styles.header}
-						start={{ x: 0, y: 0 }}
-						end={{ x: 1, y: 0 }}
-					>
-						<Text style={styles.headerTitle}>
-							{editMode ? '칭찬 미션 수정하기' : '칭찬 미션 만들기'}
-						</Text>
-						<Text style={styles.headerSubtitle}>
-							{editMode
-								? '목표를 자유롭게 수정할 수 있어요'
-								: '나만의 목표를 설정해보세요'}
-						</Text>
-					</LinearGradient>
+					<View style={styles.emojiSelectorContainer}>
+						<EmojiSelector
+							onEmojiSelected={(emoji) => {
+								setSelectedIcon(emoji);
+								setShowEmojiSelector(false);
+							}}
+							showSearchBar={false}
+							showHistory={false}
+							showTabs={false}
+							showSectionTitles={false}
+							columns={7}
+						/>
+					</View>
+				</Modal>
+			)}
 
-					<BottomSheetScrollView
-						style={styles.createForm}
-						keyboardShouldPersistTaps='handled'
+			<BottomSheet
+				ref={bottomSheetRef}
+				index={-1}
+				snapPoints={snapPoints}
+				onChange={handleSheetChanges}
+				enableOverDrag={false}
+				enablePanDownToClose={true}
+				backdropComponent={renderBackdrop}
+				handleComponent={renderHandle}
+				style={styles.container}
+			>
+				<BottomSheetView style={styles.contentContainer}>
+					<KeyboardAvoidingView
+						style={{ flex: 1 }}
+						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+						keyboardVerticalOffset={bottomTabBarHeight + 20}
 					>
-						<View style={styles.formSection}>
-							<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
-							<TextInput
-								style={styles.formInput}
-								placeholder='예: 매일 물 2L 마시기'
-								placeholderTextColor={COLORS.text.placeholder}
-								value={challengeTitle}
-								onChangeText={(text) => setChallengeTitle(text)}
-								maxLength={20}
-							/>
-							<Text style={styles.formHint}>작은 목표라도 좋아요</Text>
-						</View>
+						<LinearGradient
+							colors={COLORS.gradients.primary as [ColorValue, ColorValue]}
+							style={styles.header}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 0 }}
+						>
+							<Text style={styles.headerTitle}>
+								{editMode ? '칭찬 미션 수정하기' : '칭찬 미션 만들기'}
+							</Text>
+							<Text style={styles.headerSubtitle}>
+								{editMode
+									? '목표를 자유롭게 수정할 수 있어요'
+									: '나만의 목표를 설정해보세요'}
+							</Text>
+						</LinearGradient>
 
-						<View style={styles.formSection}>
-							<Text style={styles.formLabel}>얼마나 이어가 보고 싶나요?</Text>
-							<View style={styles.daysSelector}>
-								{CHALLENGE_DURATIONS.map((days) => (
+						<BottomSheetScrollView
+							style={styles.createForm}
+							keyboardShouldPersistTaps='handled'
+						>
+							<View style={styles.formSection}>
+								<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
+								<TextInput
+									style={styles.formInput}
+									placeholder='예: 매일 물 2L 마시기'
+									placeholderTextColor={COLORS.text.placeholder}
+									value={challengeTitle}
+									onChangeText={(text) => setChallengeTitle(text)}
+									maxLength={20}
+								/>
+								<Text style={styles.formHint}>작은 목표라도 좋아요</Text>
+							</View>
+
+							<View style={styles.formSection}>
+								<Text style={styles.formLabel}>얼마나 이어가 보고 싶나요?</Text>
+								<View style={styles.daysSelector}>
+									{CHALLENGE_DURATIONS.map((days) => (
+										<TouchableOpacity
+											key={days}
+											style={[
+												styles.daysBtn,
+												selectedDays === days && styles.daysBtnActive,
+											]}
+											onPress={() => {
+												setSelectedDays(days);
+												setShowCustomDays(false);
+											}}
+										>
+											<Text
+												style={[
+													styles.daysBtnText,
+													selectedDays === days && styles.daysBtnTextActive,
+												]}
+											>
+												{days}일
+											</Text>
+										</TouchableOpacity>
+									))}
 									<TouchableOpacity
-										key={days}
 										style={[
 											styles.daysBtn,
-											selectedDays === days && styles.daysBtnActive,
+											selectedDays === 'custom' && styles.daysBtnActive,
 										]}
 										onPress={() => {
-											setSelectedDays(days);
-											setShowCustomDays(false);
+											setSelectedDays('custom');
+											setShowCustomDays(true);
 										}}
 									>
 										<Text
 											style={[
 												styles.daysBtnText,
-												selectedDays === days && styles.daysBtnTextActive,
+												selectedDays === 'custom' && styles.daysBtnTextActive,
 											]}
 										>
-											{days}일
+											직접입력
 										</Text>
 									</TouchableOpacity>
-								))}
+								</View>
+								{showCustomDays && (
+									<TextInput
+										style={styles.formInput}
+										placeholder='원하는 일수를 입력해주세요'
+										placeholderTextColor={COLORS.text.placeholder}
+										value={customDays}
+										onChangeText={setCustomDays}
+										keyboardType='numeric'
+									/>
+								)}
+							</View>
+
+							<View style={styles.formSection}>
+								<Text style={styles.formLabel}>아이콘</Text>
 								<TouchableOpacity
-									style={[
-										styles.daysBtn,
-										selectedDays === 'custom' && styles.daysBtnActive,
-									]}
-									onPress={() => {
-										setSelectedDays('custom');
-										setShowCustomDays(true);
-									}}
+									style={styles.emojiButton}
+									onPress={() => setShowEmojiSelector(true)}
 								>
-									<Text
-										style={[
-											styles.daysBtnText,
-											selectedDays === 'custom' && styles.daysBtnTextActive,
-										]}
-									>
-										직접입력
-									</Text>
+									<Text style={styles.emojiText}>{selectedIcon || '🏃‍♂️'}</Text>
 								</TouchableOpacity>
 							</View>
-							{showCustomDays && (
+
+							<View style={styles.formSection}>
+								<Text style={styles.formLabel}>
+									칭찬 스티커를 다 모은 보상 💝
+								</Text>
 								<TextInput
 									style={styles.formInput}
-									placeholder='원하는 일수를 입력해주세요'
+									placeholder='예: 맛있는 디저트 먹기, 갖고 싶은 것 사기'
 									placeholderTextColor={COLORS.text.placeholder}
-									value={customDays}
-									onChangeText={setCustomDays}
-									keyboardType='numeric'
+									value={challengeReward}
+									onChangeText={setChallengeReward}
+									maxLength={30}
 								/>
-							)}
-						</View>
-
-						<View style={styles.formSection}>
-							<Text style={styles.formLabel}>아이콘</Text>
-							<View style={styles.iconSelector}>
-								{CHALLENGE_ICONS.map((icon) => (
-									<TouchableOpacity
-										key={icon}
-										style={[
-											styles.iconItem,
-											selectedIcon === icon && styles.iconItemActive,
-										]}
-										onPress={() => setSelectedIcon(icon)}
-									>
-										<Text style={styles.iconItemText}>{icon}</Text>
-									</TouchableOpacity>
-								))}
+								<Text style={styles.formHint}>
+									스티커 다 모으면 받을 나만의 보상을 생각해봐요 :)
+								</Text>
 							</View>
-						</View>
+						</BottomSheetScrollView>
 
-						<View style={styles.formSection}>
-							<Text style={styles.formLabel}>
-								칭찬 스티커를 다 모은 보상 💝
-							</Text>
-							<TextInput
-								style={styles.formInput}
-								placeholder='예: 맛있는 디저트 먹기, 갖고 싶은 것 사기'
-								placeholderTextColor={COLORS.text.placeholder}
-								value={challengeReward}
-								onChangeText={setChallengeReward}
-								maxLength={30}
-							/>
-							<Text style={styles.formHint}>
-								스티커 다 모으면 받을 나만의 보상을 생각해봐요 :)
-							</Text>
+						<View style={styles.createActions}>
+							<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
+								<Text style={styles.cancelBtnText}>취소</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
+								onPress={handleSubmit}
+								disabled={!isValid}
+							>
+								<Text style={styles.createBtnText}>
+									{editMode ? '수정 완료' : '미션 시작하기'}
+								</Text>
+							</TouchableOpacity>
 						</View>
-					</BottomSheetScrollView>
-
-					<View style={styles.createActions}>
-						<TouchableOpacity style={styles.cancelBtn} onPress={handleClose}>
-							<Text style={styles.cancelBtnText}>취소</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.createBtn, !isValid && styles.createBtnDisabled]}
-							onPress={handleSubmit}
-							disabled={!isValid}
-						>
-							<Text style={styles.createBtnText}>
-								{editMode ? '수정 완료' : '미션 시작하기'}
-							</Text>
-						</TouchableOpacity>
-					</View>
-				</KeyboardAvoidingView>
-			</BottomSheetView>
-		</BottomSheet>
+					</KeyboardAvoidingView>
+				</BottomSheetView>
+			</BottomSheet>
+		</>
 	);
 };
 
@@ -404,28 +424,29 @@ const styles = StyleSheet.create({
 	daysBtnTextActive: {
 		color: COLORS.text.white,
 	},
-	iconSelector: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		justifyContent: 'space-between',
-	},
-	iconItem: {
-		width: (SCREEN_WIDTH - 80) / 6,
-		height: (SCREEN_WIDTH - 80) / 6,
+	emojiButton: {
+		width: 60,
+		height: 60,
 		borderWidth: 2,
 		borderColor: COLORS.border.primary,
 		borderRadius: 12,
+		// padding: 14,
+		backgroundColor: COLORS.background.primary,
 		alignItems: 'center',
 		justifyContent: 'center',
+	},
+	emojiText: {
+		fontSize: 30,
+		color: COLORS.text.secondary,
+	},
+	emojiSelectorContainer: {
+		height: '50%',
 		backgroundColor: COLORS.background.primary,
-		marginBottom: 12,
-	},
-	iconItemActive: {
-		borderColor: COLORS.primary,
-		backgroundColor: '#f0f4ff',
-	},
-	iconItemText: {
-		fontSize: 24,
+		borderWidth: 1,
+		borderColor: COLORS.border.primary,
+		borderRadius: 12,
+		overflow: 'hidden',
+		padding: 16,
 	},
 	createActions: {
 		flexDirection: 'row',
