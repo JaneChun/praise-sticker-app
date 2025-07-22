@@ -24,12 +24,10 @@ interface StickerPackListModalProps {
 const StickerPackListModal: FC<StickerPackListModalProps> = ({
 	onStickerSelect,
 }) => {
-	const {
-		stickerPackModalVisible,
-		activeStickerPack,
-		setStickerPackModalVisible,
-		setActiveStickerPack,
-	} = useUIStore();
+	const stickerPackModalVisible = useUIStore(state => state.stickerPackModalVisible);
+	const activeStickerPack = useUIStore(state => state.activeStickerPack);
+	const setStickerPackModalVisible = useUIStore(state => state.setStickerPackModalVisible);
+	const setActiveStickerPack = useUIStore(state => state.setActiveStickerPack);
 
 	// 스티커 관련 상태 및 훅
 	const { stickerPacks, isLoading, error } = useStickers();

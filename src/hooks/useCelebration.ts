@@ -16,7 +16,7 @@ interface UseCelebrationReturn {
 
 export const useCelebration = (): UseCelebrationReturn => {
 	const { celebrationData, setCelebrationData } = useCelebrationStore();
-	const { setCelebrationVisible } = useUIStore();
+	const setCelebrationVisible = useUIStore(state => state.setCelebrationVisible);
 
 	const showCelebration = (count: number, totalDays: number, reward?: string): void => {
 		let celebrationInfo: CelebrationMessage;

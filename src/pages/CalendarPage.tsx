@@ -11,7 +11,7 @@ import { useUIStore } from '../store/useUIStore';
 
 const CalendarPage: FC = () => {
 	const { weeklyStickerCnt, streakCnt, markedDates, refresh } = useCalendar();
-	const { setDayDetailVisible } = useUIStore();
+	const setDayDetailVisible = useUIStore(state => state.setDayDetailVisible);
 
 	const insets = useSafeAreaInsets();
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);

@@ -11,14 +11,12 @@ import { useChallengeStore, useUIStore } from '../store';
 const ChallengesScreen: FC = () => {
 	const { editingChallengeId, challenges } = useChallengeStore();
 
-	const {
-		createChallengeVisible,
-		editChallengeVisible,
-		setCreateChallengeVisible,
-		setEditChallengeVisible,
-		celebrationVisible,
-		setCelebrationVisible,
-	} = useUIStore();
+	const createChallengeVisible = useUIStore(state => state.createChallengeVisible);
+	const editChallengeVisible = useUIStore(state => state.editChallengeVisible);
+	const setCreateChallengeVisible = useUIStore(state => state.setCreateChallengeVisible);
+	const setEditChallengeVisible = useUIStore(state => state.setEditChallengeVisible);
+	const celebrationVisible = useUIStore(state => state.celebrationVisible);
+	const setCelebrationVisible = useUIStore(state => state.setCelebrationVisible);
 
 	const { celebrationData, clearCelebration } = useCelebration();
 

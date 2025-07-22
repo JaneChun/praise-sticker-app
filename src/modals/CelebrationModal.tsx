@@ -9,8 +9,9 @@ import RewardModal from './RewardModal';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
-	const { celebrationVisible, rewardModalVisible, setRewardModalVisible } =
-		useUIStore();
+	const celebrationVisible = useUIStore(state => state.celebrationVisible);
+	const rewardModalVisible = useUIStore(state => state.rewardModalVisible);
+	const setRewardModalVisible = useUIStore(state => state.setRewardModalVisible);
 
 	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
 	const [showRewardPopup, setShowRewardPopup] = useState<boolean>(false);

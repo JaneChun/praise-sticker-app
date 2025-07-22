@@ -22,7 +22,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 	onLongPress,
 	refreshTrigger,
 }) => {
-	const { currentView } = useUIStore();
+	const currentView = useUIStore(state => state.currentView);
 	const [progressText, setProgressText] = useState('');
 	const [completedDays, setCompletedDays] = useState(0);
 

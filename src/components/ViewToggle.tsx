@@ -7,7 +7,8 @@ import { useUIStore } from '../store';
 export type ViewMode = 'card' | 'grid';
 
 const ViewToggle: FC = () => {
-	const { currentView, setCurrentView } = useUIStore();
+	const currentView = useUIStore(state => state.currentView);
+	const setCurrentView = useUIStore(state => state.setCurrentView);
 
 	return (
 		<View style={styles.viewToggle}>

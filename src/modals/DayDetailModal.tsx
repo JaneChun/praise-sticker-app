@@ -20,7 +20,8 @@ import {
 } from '../types';
 
 const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate, onClose }) => {
-	const { dayDetailVisible, setDayDetailVisible } = useUIStore();
+	const dayDetailVisible = useUIStore(state => state.dayDetailVisible);
+	const setDayDetailVisible = useUIStore(state => state.setDayDetailVisible);
 
 	const [dayDetailData, setDayDetailData] =
 		useState<GetDayDetailResponse | null>(null);

@@ -35,7 +35,8 @@ const ChallengesPage: FC = () => {
 		loadChallenges,
 	} = useChallengeStore();
 
-	const { setCreateChallengeVisible, setEditChallengeVisible } = useUIStore();
+	const setCreateChallengeVisible = useUIStore(state => state.setCreateChallengeVisible);
+	const setEditChallengeVisible = useUIStore(state => state.setEditChallengeVisible);
 	const { resetDatabase, isInitialized } = useDatabaseStore();
 
 	const insets = useSafeAreaInsets();

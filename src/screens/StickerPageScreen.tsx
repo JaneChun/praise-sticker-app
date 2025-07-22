@@ -46,7 +46,8 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 		null,
 	);
 
-	const { stickerPackModalVisible, setStickerPackModalVisible } = useUIStore();
+	const stickerPackModalVisible = useUIStore(state => state.stickerPackModalVisible);
+	const setStickerPackModalVisible = useUIStore(state => state.setStickerPackModalVisible);
 
 	// 스티커팩이 로드된 후 첫 번째 스티커팩에서 랜덤 스티커 자동 선택
 	useEffect(() => {
