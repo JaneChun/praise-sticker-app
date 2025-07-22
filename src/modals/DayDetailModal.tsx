@@ -6,12 +6,12 @@ import { useUIStore } from '@/store';
 import { FC, useCallback, useEffect, useState } from 'react';
 import {
 	FlatList,
-	Modal,
 	StyleSheet,
 	Text,
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
+import Modal from 'react-native-modal';
 import { COLORS } from '../constants/colors';
 import {
 	ChallengeWithStickers,
@@ -20,8 +20,8 @@ import {
 } from '../types';
 
 const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate, onClose }) => {
-	const dayDetailVisible = useUIStore(state => state.dayDetailVisible);
-	const setDayDetailVisible = useUIStore(state => state.setDayDetailVisible);
+	const dayDetailVisible = useUIStore((state) => state.dayDetailVisible);
+	const setDayDetailVisible = useUIStore((state) => state.setDayDetailVisible);
 
 	const [dayDetailData, setDayDetailData] =
 		useState<GetDayDetailResponse | null>(null);
@@ -92,72 +92,74 @@ const DayDetailModal: FC<DayDetailModalProps> = ({ selectedDate, onClose }) => {
 	if (isLoading) return null;
 
 	return (
-		<Modal visible={dayDetailVisible} transparent animationType='fade'>
-			<TouchableWithoutFeedback onPress={handleClose}>
-				<View style={styles.overlay}>
-					<TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-						<View style={styles.dayDetailContent}>
-							<View style={styles.dayDetailHeader}>
-								<Text style={styles.dayDetailDate}>
-									{selectedDate &&
-										new Date(selectedDate).toLocaleDateString('ko-KR', {
-											month: 'long',
-											day: 'numeric',
-										})}
-								</Text>
-								<Text style={styles.dayDetailCount}>
-									총 {totalStickers}개의 칭찬 스티커
-								</Text>
-							</View>
-
-							<FlatList
-								data={dayDetailData?.challengeWithStickers ?? []}
-								keyExtractor={(item) => item.challengeId}
-								style={styles.stickersByChallenge}
-								contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
-								nestedScrollEnabled={true}
-								showsVerticalScrollIndicator={false}
-								renderItem={({ item: challenge }) => (
-									<View
-										style={styles.challengeSection}
-										onStartShouldSetResponder={() => true}
-									>
-										<View style={styles.challengeInfo}>
-											<Text style={styles.challengeEmoji}>
-												{challenge.challengeIcon || '🎯'}
-											</Text>
-											<Text
-												numberOfLines={1}
-												ellipsizeMode='tail'
-												style={styles.challengeTitle}
-											>
-												{challenge.challengeTitle}
-											</Text>
-										</View>
-										<View style={styles.stickersList}>
-											{challenge.stickers.map((sticker) => (
-												<StickerRenderer
-													key={sticker.id}
-													sticker={sticker}
-													size={30}
-												/>
-											))}
-										</View>
-									</View>
-								)}
-							/>
+		<Modal
+			isVisible={dayDetailVisible}
+			animationIn='fadeIn'
+			animationOut='fadeOut'
+			onBackdropPress={handleClose}
+			backdropOpacity={0.5}
+		>
+			<View style={styles.overlay}>
+				<TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+					<View style={styles.dayDetailContent}>
+						<View style={styles.dayDetailHeader}>
+							<Text style={styles.dayDetailDate}>
+								{selectedDate &&
+									new Date(selectedDate).toLocaleDateString('ko-KR', {
+										month: 'long',
+										day: 'numeric',
+									})}
+							</Text>
+							<Text style={styles.dayDetailCount}>
+								총 {totalStickers}개의 칭찬 스티커
+							</Text>
 						</View>
-					</TouchableWithoutFeedback>
-				</View>
-			</TouchableWithoutFeedback>
+
+						<FlatList
+							data={dayDetailData?.challengeWithStickers ?? []}
+							keyExtractor={(item) => item.challengeId}
+							style={styles.stickersByChallenge}
+							contentContainerStyle={{ paddingBottom: 20, flexGrow: 1 }}
+							nestedScrollEnabled={true}
+							showsVerticalScrollIndicator={false}
+							renderItem={({ item: challenge }) => (
+								<View
+									style={styles.challengeSection}
+									onStartShouldSetResponder={() => true}
+								>
+									<View style={styles.challengeInfo}>
+										<Text style={styles.challengeEmoji}>
+											{challenge.challengeIcon || '🎯'}
+										</Text>
+										<Text
+											numberOfLines={1}
+											ellipsizeMode='tail'
+											style={styles.challengeTitle}
+										>
+											{challenge.challengeTitle}
+										</Text>
+									</View>
+									<View style={styles.stickersList}>
+										{challenge.stickers.map((sticker) => (
+											<StickerRenderer
+												key={sticker.id}
+												sticker={sticker}
+												size={30}
+											/>
+										))}
+									</View>
+								</View>
+							)}
+						/>
+					</View>
+				</TouchableWithoutFeedback>
+			</View>
 		</Modal>
 	);
 };
 
 const styles = StyleSheet.create({
 	overlay: {
-		flex: 1,
-		backgroundColor: COLORS.background.opacity,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
 		padding: 24,
 		maxWidth: 320,
 		width: '90%',
-		height: '50%',
+		height: '65%',
 	},
 	closeDayDetail: {
 		position: 'absolute',

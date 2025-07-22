@@ -1,13 +1,6 @@
-import { FC, useEffect, useState } from 'react';
-import {
-	Animated,
-	Modal,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	TouchableWithoutFeedback,
-	View,
-} from 'react-native';
+import { FC } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Modal from 'react-native-modal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/colors';
 
@@ -25,24 +18,6 @@ interface ActionSheetProps {
 
 const ActionSheet: FC<ActionSheetProps> = ({ visible, onClose, options }) => {
 	const insets = useSafeAreaInsets();
-	const [slideAnim] = useState(new Animated.Value(300));
-
-	useEffect(() => {
-		if (visible) {
-			Animated.spring(slideAnim, {
-				toValue: 0,
-				useNativeDriver: true,
-				tension: 100,
-				friction: 8,
-			}).start();
-		} else {
-			Animated.timing(slideAnim, {
-				toValue: 300,
-				duration: 200,
-				useNativeDriver: true,
-			}).start();
-		}
-	}, [visible, slideAnim]);
 
 	const handleOptionPress = (onPress: () => void) => {
 		onClose();
@@ -52,62 +27,50 @@ const ActionSheet: FC<ActionSheetProps> = ({ visible, onClose, options }) => {
 
 	return (
 		<Modal
-			visible={visible}
-			transparent
-			animationType='fade'
-			onRequestClose={onClose}
+			isVisible={visible}
+			animationIn='slideInUp'
+			animationOut='slideOutDown'
+			onBackdropPress={onClose}
+			onBackButtonPress={onClose}
+			backdropOpacity={0.5}
+			style={styles.modal}
 		>
-			<TouchableWithoutFeedback onPress={onClose}>
-				<View style={styles.overlay}>
-					<TouchableWithoutFeedback>
-						<Animated.View
+			<View style={[styles.container, { paddingBottom: insets.bottom }]}>
+				<View style={styles.optionsContainer}>
+					{options.map((option, index) => (
+						<TouchableOpacity
+							key={index}
 							style={[
-								styles.container,
-								{
-									paddingBottom: insets.bottom,
-									transform: [{ translateY: slideAnim }],
-								},
+								styles.optionButton,
+								index === 0 && styles.firstOption,
+								index === options.length - 1 && styles.lastOption,
 							]}
+							onPress={() => handleOptionPress(option.onPress)}
 						>
-							<View style={styles.optionsContainer}>
-								{options.map((option, index) => (
-									<TouchableOpacity
-										key={index}
-										style={[
-											styles.optionButton,
-											index === 0 && styles.firstOption,
-											index === options.length - 1 && styles.lastOption,
-										]}
-										onPress={() => handleOptionPress(option.onPress)}
-									>
-										<Text
-											style={[
-												styles.optionText,
-												option.destructive && styles.destructiveText,
-											]}
-										>
-											{option.title}
-										</Text>
-									</TouchableOpacity>
-								))}
-							</View>
-
-							<TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-								<Text style={styles.cancelText}>취소</Text>
-							</TouchableOpacity>
-						</Animated.View>
-					</TouchableWithoutFeedback>
+							<Text
+								style={[
+									styles.optionText,
+									option.destructive && styles.destructiveText,
+								]}
+							>
+								{option.title}
+							</Text>
+						</TouchableOpacity>
+					))}
 				</View>
-			</TouchableWithoutFeedback>
+
+				<TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+					<Text style={styles.cancelText}>취소</Text>
+				</TouchableOpacity>
+			</View>
 		</Modal>
 	);
 };
 
 const styles = StyleSheet.create({
-	overlay: {
-		flex: 1,
-		backgroundColor: COLORS.background.opacity,
+	modal: {
 		justifyContent: 'flex-end',
+		margin: 0,
 	},
 	container: {
 		backgroundColor: 'transparent',
