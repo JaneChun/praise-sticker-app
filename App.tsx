@@ -1,3 +1,4 @@
+import { PortalProvider } from '@gorhom/portal';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
@@ -29,18 +30,20 @@ const App = () => {
 
 	return (
 		<GestureHandlerRootView style={styles.container}>
-			<SafeAreaProvider>
-				<View style={styles.container}>
-					<StatusBar
-						barStyle='light-content'
-						backgroundColor='transparent'
-						translucent
-					/>
-					<NavigationContainer>
-						<StackNavigator />
-					</NavigationContainer>
-				</View>
-			</SafeAreaProvider>
+			<PortalProvider>
+				<SafeAreaProvider>
+					<View style={styles.container}>
+						<StatusBar
+							barStyle='light-content'
+							backgroundColor='transparent'
+							translucent
+						/>
+						<NavigationContainer>
+							<StackNavigator />
+						</NavigationContainer>
+					</View>
+				</SafeAreaProvider>
+			</PortalProvider>
 		</GestureHandlerRootView>
 	);
 };
