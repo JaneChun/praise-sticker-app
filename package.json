@@ -10,7 +10,8 @@
 		"build:ios:dev": "eas build --profile development --platform ios --non-interactive",
 		"build:ios:prod": "eas build --profile production --platform ios --non-interactive",
 		"predeploy": "npm run build:ios:prod",
-		"deploy": "eas submit -p ios --latest --non-interactive"
+		"deploy": "eas submit -p ios --latest --non-interactive",
+		"postinstall": "patch-package"
 	},
 	"dependencies": {
 		"@expo/vector-icons": "^14.1.0",
@@ -45,6 +46,7 @@
 		"eslint-plugin-react": "^7.37.5",
 		"eslint-plugin-react-hooks": "^5.2.0",
 		"eslint-plugin-react-native": "^5.0.0",
+		"patch-package": "^8.0.0",
 		"typescript": "~5.8.3"
 	},
 	"private": true
