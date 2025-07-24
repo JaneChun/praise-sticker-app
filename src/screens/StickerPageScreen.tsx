@@ -168,11 +168,13 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 
 	// 오늘의 스티커 드래그 레퍼런스
 	const longPressTimer = useRef<Timer | null>(null);
+	const [isPreparingDrag, setIsPreparingDrag] = useState(false);
 
 	const onPanResponderGrant = useCallback(
 		(_: any, gestureState: any) => {
 			if (!selectedSticker) return;
 
+			setIsPreparingDrag(true);
 			longPressTimer.current = setTimeout(() => {
 				handleTodayStickerDragStart(
 					gestureState.x0 - 30, // 스티커 크기 보정
@@ -194,6 +196,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 				if (dx > 5 || dy > 5) {
 					clearTimeout(longPressTimer.current);
 					longPressTimer.current = null;
+					setIsPreparingDrag(false);
 					return; // 드래그 취소
 				}
 			}
@@ -212,6 +215,8 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 				clearTimeout(longPressTimer.current);
 				longPressTimer.current = null;
 			}
+			
+			setIsPreparingDrag(false);
 
 			if (!isDragging || !selectedSticker) return;
 
@@ -306,7 +311,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			<ScrollView
 				style={styles.stickerBoard}
 				contentContainerStyle={styles.stickerBoardContent}
-				scrollEnabled={!isDragging}
+				scrollEnabled={!isDragging && !isPreparingDrag}
 			>
 				<View style={styles.stickerGrid}>
 					{stickerGrid?.map((sticker, index) => {
