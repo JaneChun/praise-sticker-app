@@ -22,7 +22,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 	onLongPress,
 	refreshTrigger,
 }) => {
-	const currentView = useUIStore(state => state.currentView);
+	const currentView = useUIStore((state) => state.currentView);
 	const [progressText, setProgressText] = useState('');
 	const [completedDays, setCompletedDays] = useState(0);
 
@@ -37,10 +37,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 
 	if (isNew) {
 		return (
-			<TouchableOpacity
-				style={[styles.challengeCard, styles.newChallenge]}
-				onPress={onPress}
-			>
+			<TouchableOpacity style={[styles.challengeCard, styles.newChallenge]} onPress={onPress}>
 				<Text style={styles.challengeIcon}>
 					<Entypo name='plus' size={32} color={COLORS.text.secondary} />
 				</Text>
@@ -63,7 +60,9 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 			onLongPress={onLongPress}
 		>
 			<Text style={styles.challengeIcon}>{challenge?.icon}</Text>
-			<Text style={styles.challengeTitle}>{challenge?.title || 'Unknown'}</Text>
+			<Text numberOfLines={2} ellipsizeMode='tail' style={styles.challengeTitle}>
+				{challenge?.title || 'Unknown'}
+			</Text>
 
 			{currentView === 'card' ? (
 				<View style={styles.challengeProgressContainer}>
@@ -72,9 +71,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 					) : (
 						<FontAwesome6 name='fire' style={styles.fireIcon} />
 					)}
-					<Text style={styles.challengeProgress}>
-						{isCompleted ? '완료' : progressText}
-					</Text>
+					<Text style={styles.challengeProgress}>{isCompleted ? '완료' : progressText}</Text>
 				</View>
 			) : (
 				<View style={styles.miniGrid}>
@@ -83,10 +80,7 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 						.map((_, index) => (
 							<View
 								key={index}
-								style={[
-									styles.miniDot,
-									index < completedDays && styles.miniDotFilled,
-								]}
+								style={[styles.miniDot, index < completedDays && styles.miniDotFilled]}
 							/>
 						))}
 				</View>

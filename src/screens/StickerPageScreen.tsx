@@ -35,24 +35,20 @@ type Props = NativeStackScreenProps<StackParamList, 'StickerPage'>;
 const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	const { currentChallenge } = route.params;
 
-	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } =
-		useStickerPage(currentChallenge?.id, currentChallenge?.days);
+	const { stickerGrid, setStickerGrid, canAddSticker, stickerCount } = useStickerPage(
+		currentChallenge?.id,
+		currentChallenge?.days,
+	);
 	const { stickerPacks } = useStickers();
 	const { showCelebration, clearCelebration } = useCelebration();
 
 	const insets = useSafeAreaInsets();
 	const scaleAnim = useRef<Animated.Value>(new Animated.Value(1)).current;
 	const [selectedSticker, setSelectedSticker] = useState<Sticker | null>(null);
-	const [scaleAnimSlotIndex, setScaleAnimSlotIndex] = useState<number | null>(
-		null,
-	);
+	const [scaleAnimSlotIndex, setScaleAnimSlotIndex] = useState<number | null>(null);
 
-	const stickerPackModalVisible = useUIStore(
-		(state) => state.stickerPackModalVisible,
-	);
-	const setStickerPackModalVisible = useUIStore(
-		(state) => state.setStickerPackModalVisible,
-	);
+	const stickerPackModalVisible = useUIStore((state) => state.stickerPackModalVisible);
+	const setStickerPackModalVisible = useUIStore((state) => state.setStickerPackModalVisible);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -65,9 +61,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	// 스티커팩이 로드된 후 첫 번째 스티커팩에서 랜덤 스티커 자동 선택
 	useEffect(() => {
 		if (stickerPacks.length > 0 && stickerPacks[0].stickers.length > 0) {
-			const randomIndex = Math.floor(
-				Math.random() * stickerPacks[0].stickers.length,
-			);
+			const randomIndex = Math.floor(Math.random() * stickerPacks[0].stickers.length);
 			setSelectedSticker(stickerPacks[0].stickers[randomIndex]);
 		}
 	}, [currentChallenge?.id, stickerPacks]);
@@ -77,10 +71,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 	};
 
 	/* ────────────────── 스티커 추가, 제거 로직 ────────────────── */
-	const addStickerToGrid = async (
-		index: number,
-		sticker: Sticker,
-	): Promise<void> => {
+	const addStickerToGrid = async (index: number, sticker: Sticker): Promise<void> => {
 		// 1. 권한 확인 (하루에 한 번만)
 		if (!canAddSticker) return;
 
@@ -107,11 +98,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 			}, 300);
 
 			// 6. 축하 메세지 설정
-			showCelebration(
-				stickerCount + 1,
-				currentChallenge?.days || 30,
-				currentChallenge?.reward,
-			);
+			showCelebration(stickerCount + 1, currentChallenge?.days || 30, currentChallenge?.reward);
 		} catch (error) {
 			console.error('Error adding sticker:', error);
 		}
@@ -234,13 +221,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 
 			handleDragEnd();
 		},
-		[
-			isDragging,
-			isInNextSlotArea,
-			selectedSticker,
-			addStickerToGrid,
-			handleDragEnd,
-		],
+		[isDragging, isInNextSlotArea, selectedSticker, addStickerToGrid, handleDragEnd],
 	);
 
 	// 오늘의 스티커 PanResponder
@@ -269,19 +250,15 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 				<View style={styles.headerContent}>
 					<View style={styles.buttonsContainer}>
 						<TouchableOpacity onPress={handleGoBack}>
-							<Ionicons
-								name='chevron-back'
-								size={28}
-								color={COLORS.background.primary}
-							/>
+							<Ionicons name='chevron-back' size={28} color={COLORS.background.primary} />
 						</TouchableOpacity>
 					</View>
 
 					<View>
-						<Text style={styles.headerTitle}>{currentChallenge?.title}</Text>
-						<Text style={styles.headerSubtitle}>
-							오늘도 잘했어요! 스티커로 칭찬해주세요
+						<Text numberOfLines={1} ellipsizeMode='tail' style={styles.headerTitle}>
+							{currentChallenge?.title}
 						</Text>
+						<Text style={styles.headerSubtitle}>오늘도 잘했어요! 스티커로 칭찬해주세요</Text>
 					</View>
 				</View>
 
@@ -291,9 +268,7 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 						<Animated.View
 							style={[
 								styles.selectedSticker,
-								isDragging &&
-									!isDraggingFromSlot &&
-									styles.selectedStickerDragging,
+								isDragging && !isDraggingFromSlot && styles.selectedStickerDragging,
 								{
 									transform: [{ scale: scaleAnim }],
 								},
@@ -301,19 +276,14 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 							onLayout={handleTodayStickerLayout}
 							{...selectedStickerPanResponder.panHandlers}
 						>
-							<StickerRenderer
-								sticker={selectedSticker}
-								size={SIZES.stickerSlot}
-							/>
+							<StickerRenderer sticker={selectedSticker} size={SIZES.stickerSlot} />
 						</Animated.View>
 					) : (
 						<View
 							style={[
 								styles.emptySticker,
 								// 슬롯에서 드래그할 때 오늘의 스티커 영역 강조
-								isDragging &&
-									isDraggingFromSlot &&
-									styles.todayStickerValidDrop,
+								isDragging && isDraggingFromSlot && styles.todayStickerValidDrop,
 							]}
 							onLayout={handleTodayStickerLayout}
 						/>
@@ -348,16 +318,11 @@ const StickerPageScreen: FC<Props> = ({ route, navigation }) => {
 								onLayout={handleSlotLayout}
 								showScaleAnimation={index === scaleAnimSlotIndex}
 								removeStickerFromGrid={removeStickerFromGrid}
-								isValidDropSlot={
-									isDragging && !isDraggingFromSlot && index === nextSlotIndex
-								}
+								isValidDropSlot={isDragging && !isDraggingFromSlot && index === nextSlotIndex}
 								isDraggingSticker={
 									isDragging &&
 									isDraggingFromSlot &&
-									index ===
-										(nextSlotIndex >= 0
-											? nextSlotIndex - 1
-											: stickerGrid.length - 1)
+									index === (nextSlotIndex >= 0 ? nextSlotIndex - 1 : stickerGrid.length - 1)
 								}
 								isDragging={isDragging}
 								draggingSticker={draggingSticker}
