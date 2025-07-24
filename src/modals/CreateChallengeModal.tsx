@@ -190,6 +190,9 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 				backdropComponent={renderBackdrop}
 				handleComponent={renderHandle}
 				style={styles.container}
+				keyboardBehavior='extend'
+				keyboardBlurBehavior='restore'
+				android_keyboardInputMode='adjustResize'
 			>
 				<BottomSheetView style={styles.contentContainer}>
 					<KeyboardAvoidingView
