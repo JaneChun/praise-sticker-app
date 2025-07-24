@@ -1,4 +1,5 @@
 import { useCelebration } from '@/hooks/useCelebration';
+import RewardModal from '@/modals/RewardModal';
 import { useFocusEffect } from '@react-navigation/native';
 import { FC, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -11,12 +12,22 @@ import { useChallengeStore, useUIStore } from '../store';
 const ChallengesScreen: FC = () => {
 	const { editingChallengeId, challenges } = useChallengeStore();
 
-	const createChallengeVisible = useUIStore(state => state.createChallengeVisible);
-	const editChallengeVisible = useUIStore(state => state.editChallengeVisible);
-	const setCreateChallengeVisible = useUIStore(state => state.setCreateChallengeVisible);
-	const setEditChallengeVisible = useUIStore(state => state.setEditChallengeVisible);
-	const celebrationVisible = useUIStore(state => state.celebrationVisible);
-	const setCelebrationVisible = useUIStore(state => state.setCelebrationVisible);
+	const createChallengeVisible = useUIStore(
+		(state) => state.createChallengeVisible,
+	);
+	const editChallengeVisible = useUIStore(
+		(state) => state.editChallengeVisible,
+	);
+	const setCreateChallengeVisible = useUIStore(
+		(state) => state.setCreateChallengeVisible,
+	);
+	const setEditChallengeVisible = useUIStore(
+		(state) => state.setEditChallengeVisible,
+	);
+	const celebrationVisible = useUIStore((state) => state.celebrationVisible);
+	const setCelebrationVisible = useUIStore(
+		(state) => state.setCelebrationVisible,
+	);
 
 	const { celebrationData, clearCelebration } = useCelebration();
 
@@ -51,6 +62,8 @@ const ChallengesScreen: FC = () => {
 			/>
 
 			<CelebrationModal />
+
+			<RewardModal />
 		</View>
 	);
 };

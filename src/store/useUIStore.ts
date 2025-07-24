@@ -15,6 +15,9 @@ interface UIState {
 
 	// 스티커팩 모달 상태
 	activeStickerPack: StickerPackWithStickers | null;
+
+	// 보상 모달 상태
+	reward: string | null;
 }
 
 interface UIActions {
@@ -31,6 +34,9 @@ interface UIActions {
 
 	// 스티커팩 모달 액션
 	setActiveStickerPack: (pack: StickerPackWithStickers | null) => void;
+
+	// 보상 모달 액션
+	setReward: (reward: string | null) => void;
 }
 
 type UIStore = UIState & UIActions;
@@ -45,20 +51,16 @@ export const useUIStore = create<UIStore>((set) => ({
 	stickerPackModalVisible: false,
 	rewardModalVisible: false,
 	activeStickerPack: null,
+	reward: null,
 
 	// 액션
 	setCurrentView: (view: string) => set({ currentView: view }),
-	setCreateChallengeVisible: (visible: boolean) =>
-		set({ createChallengeVisible: visible }),
-	setEditChallengeVisible: (visible: boolean) =>
-		set({ editChallengeVisible: visible }),
-	setCelebrationVisible: (visible: boolean) =>
-		set({ celebrationVisible: visible }),
+	setCreateChallengeVisible: (visible: boolean) => set({ createChallengeVisible: visible }),
+	setEditChallengeVisible: (visible: boolean) => set({ editChallengeVisible: visible }),
+	setCelebrationVisible: (visible: boolean) => set({ celebrationVisible: visible }),
 	setDayDetailVisible: (visible: boolean) => set({ dayDetailVisible: visible }),
-	setStickerPackModalVisible: (visible: boolean) =>
-		set({ stickerPackModalVisible: visible }),
-	setRewardModalVisible: (visible: boolean) =>
-		set({ rewardModalVisible: visible }),
-	setActiveStickerPack: (pack: StickerPackWithStickers | null) =>
-		set({ activeStickerPack: pack }),
+	setStickerPackModalVisible: (visible: boolean) => set({ stickerPackModalVisible: visible }),
+	setRewardModalVisible: (visible: boolean) => set({ rewardModalVisible: visible }),
+	setActiveStickerPack: (pack: StickerPackWithStickers | null) => set({ activeStickerPack: pack }),
+	setReward: (reward: string | null) => set({ reward }),
 }));

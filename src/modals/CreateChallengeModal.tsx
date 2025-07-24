@@ -112,10 +112,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 			setVisible(false);
 		} catch (error) {
 			console.error('Error saving challenge:', error);
-			Alert.alert(
-				'오류',
-				editMode ? '미션 수정에 실패했습니다.' : '미션 생성에 실패했습니다.',
-			);
+			Alert.alert('오류', editMode ? '미션 수정에 실패했습니다.' : '미션 생성에 실패했습니다.');
 		}
 	};
 
@@ -164,15 +161,10 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 		<>
 			{showEmojiSelector && (
 				<CustomModal
-					visible={showEmojiSelector}
-					onClose={() => setShowEmojiSelector(false)}
+					isVisible={showEmojiSelector}
+					onBackdropPress={() => setShowEmojiSelector(false)}
 				>
-					<View
-						style={[
-							styles.emojiSelectorContainer,
-							Platform.OS === 'android' && { width: '80%' },
-						]}
-					>
+					<View style={[styles.emojiSelectorContainer]}>
 						<EmojiSelector
 							onEmojiSelected={(emoji) => {
 								setSelectedIcon(emoji);
@@ -215,16 +207,11 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 								{editMode ? '칭찬 미션 수정하기' : '칭찬 미션 만들기'}
 							</Text>
 							<Text style={styles.headerSubtitle}>
-								{editMode
-									? '목표를 자유롭게 수정할 수 있어요'
-									: '나만의 목표를 설정해보세요'}
+								{editMode ? '목표를 자유롭게 수정할 수 있어요' : '나만의 목표를 설정해보세요'}
 							</Text>
 						</LinearGradient>
 
-						<BottomSheetScrollView
-							style={styles.createForm}
-							keyboardShouldPersistTaps='handled'
-						>
+						<BottomSheetScrollView style={styles.createForm} keyboardShouldPersistTaps='handled'>
 							<View style={styles.formSection}>
 								<Text style={styles.formLabel}>어떤 목표를 세워볼까요? *</Text>
 								<TextInput
@@ -244,10 +231,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 									{CHALLENGE_DURATIONS.map((days) => (
 										<TouchableOpacity
 											key={days}
-											style={[
-												styles.daysBtn,
-												selectedDays === days && styles.daysBtnActive,
-											]}
+											style={[styles.daysBtn, selectedDays === days && styles.daysBtnActive]}
 											onPress={() => {
 												setSelectedDays(days);
 												setShowCustomDays(false);
@@ -264,10 +248,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 										</TouchableOpacity>
 									))}
 									<TouchableOpacity
-										style={[
-											styles.daysBtn,
-											selectedDays === 'custom' && styles.daysBtnActive,
-										]}
+										style={[styles.daysBtn, selectedDays === 'custom' && styles.daysBtnActive]}
 										onPress={() => {
 											setSelectedDays('custom');
 											setShowCustomDays(true);
@@ -307,9 +288,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 							</View>
 
 							<View style={styles.formSection}>
-								<Text style={styles.formLabel}>
-									칭찬 스티커를 다 모은 보상 💝
-								</Text>
+								<Text style={styles.formLabel}>칭찬 스티커를 다 모은 보상 💝</Text>
 								<TextInput
 									style={styles.formInput}
 									placeholder='예: 맛있는 디저트 먹기, 갖고 싶은 것 사기'
@@ -333,9 +312,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 								onPress={handleSubmit}
 								disabled={!isValid}
 							>
-								<Text style={styles.createBtnText}>
-									{editMode ? '수정 완료' : '미션 시작하기'}
-								</Text>
+								<Text style={styles.createBtnText}>{editMode ? '수정 완료' : '미션 시작하기'}</Text>
 							</TouchableOpacity>
 						</View>
 					</KeyboardAvoidingView>
@@ -440,7 +417,8 @@ const styles = StyleSheet.create({
 		color: COLORS.text.secondary,
 	},
 	emojiSelectorContainer: {
-		height: '50%',
+		width: '80%',
+		height: '45%',
 		backgroundColor: COLORS.background.primary,
 		borderRadius: 16,
 		overflow: 'hidden',

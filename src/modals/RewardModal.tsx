@@ -1,31 +1,24 @@
+import { useCelebration } from '@/hooks/useCelebration';
 import { useUIStore } from '@/store';
+import { Portal } from '@gorhom/portal';
 import { FC, useEffect, useRef } from 'react';
-import {
-	Animated,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
 
-interface RewardModalProps {
-	visible: boolean;
-	reward: string;
-	onClose: () => void;
-}
+const RewardModal: FC = () => {
+	const reward = useUIStore((state) => state.reward);
+	const setReward = useUIStore((state) => state.setReward);
+	const isVisible = useUIStore((state) => state.rewardModalVisible);
+	const setRewardModalVisible = useUIStore((state) => state.setRewardModalVisible);
 
-const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
+	const { clearCelebration } = useCelebration();
+
 	// 애니메이션 values
 	const rewardPopupScale = useRef(new Animated.Value(0)).current;
 	const rewardPopupOpacity = useRef(new Animated.Value(0)).current;
 
-	const setRewardModalVisible = useUIStore(
-		(state) => state.setRewardModalVisible,
-	);
-
 	useEffect(() => {
-		if (visible) {
+		if (isVisible) {
 			// Hero 애니메이션 실행
 			Animated.parallel([
 				Animated.spring(rewardPopupScale, {
@@ -41,11 +34,9 @@ const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
 				}),
 			]).start();
 		}
-	}, [visible]);
+	}, [isVisible]);
 
 	const handleClose = () => {
-		onClose();
-
 		// 닫기 애니메이션
 		Animated.parallel([
 			Animated.timing(rewardPopupScale, {
@@ -62,41 +53,45 @@ const RewardModal: FC<RewardModalProps> = ({ visible, reward, onClose }) => {
 			// 애니메이션 값 리셋
 			rewardPopupScale.setValue(0);
 			rewardPopupOpacity.setValue(0);
+
+			// 애니메이션 종료 후 초기화
+			setReward(null);
 			setRewardModalVisible(false);
+			clearCelebration();
 		});
 	};
 
-	if (!visible) return null;
+	if (!isVisible) return null;
 
 	return (
-		<View style={styles.rewardPopupOverlay}>
-			<Animated.View
-				style={[
-					styles.rewardPopupContent,
-					{
-						transform: [{ scale: rewardPopupScale }],
-						opacity: rewardPopupOpacity,
-					},
-				]}
-			>
-				<Text style={styles.giftEmoji}>🎁</Text>
-				<View style={styles.rewardContainer}>
-					<Text style={styles.rewardLabel}> 보상</Text>
-					<Text style={styles.rewardText}>{reward}🩷</Text>
-				</View>
-				<TouchableOpacity
-					style={styles.celebrationButton}
-					onPress={handleClose}
+		<Portal>
+			<Pressable style={styles.rewardPopupOverlay}>
+				<Animated.View
+					style={[
+						styles.rewardPopupContent,
+						{
+							transform: [{ scale: rewardPopupScale }],
+							opacity: rewardPopupOpacity,
+						},
+					]}
 				>
-					<Text style={styles.celebrationButtonText}>계속하기</Text>
-				</TouchableOpacity>
-			</Animated.View>
-		</View>
+					<Text style={styles.giftEmoji}>🎁</Text>
+					<View style={styles.rewardContainer}>
+						<Text style={styles.rewardLabel}> 보상</Text>
+						<Text style={styles.rewardText}>{reward}🩷</Text>
+					</View>
+					<TouchableOpacity style={styles.celebrationButton} onPress={handleClose}>
+						<Text style={styles.celebrationButtonText}>계속하기</Text>
+					</TouchableOpacity>
+				</Animated.View>
+			</Pressable>
+		</Portal>
 	);
 };
 
 const styles = StyleSheet.create({
 	rewardPopupOverlay: {
+		backgroundColor: `rgba(0, 0, 0, 0.5)`,
 		position: 'absolute',
 		top: 0,
 		left: 0,

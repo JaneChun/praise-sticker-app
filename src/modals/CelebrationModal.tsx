@@ -1,46 +1,41 @@
+import CustomModal from '@/components/CustomModal';
 import ParticleEffect from '@/components/ParticleEffect';
 import { useCelebration } from '@/hooks/useCelebration';
 import { useUIStore } from '@/store';
 import { FC, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Modal from 'react-native-modal';
 import { COLORS } from '../constants/colors';
 import { FINAL_MESSAGES } from '../constants/data';
-import RewardModal from './RewardModal';
 
 const CelebrationModal: FC = ({}) => {
 	const { celebrationData, clearCelebration } = useCelebration();
 	const celebrationVisible = useUIStore((state) => state.celebrationVisible);
-	const setCelebrationVisible = useUIStore(
-		(state) => state.setCelebrationVisible,
-	);
-	const rewardModalVisible = useUIStore((state) => state.rewardModalVisible);
-	const setRewardModalVisible = useUIStore(
-		(state) => state.setRewardModalVisible,
-	);
+
+	const reward = useUIStore((state) => state.reward);
+	const setReward = useUIStore((state) => state.setReward);
+	const setRewardModalVisible = useUIStore((state) => state.setRewardModalVisible);
 
 	const [showParticleEffect, setShowParticleEffect] = useState<boolean>(false);
-	const [showRewardPopup, setShowRewardPopup] = useState<boolean>(false);
 
-	// celebrationData에서 reward 정보 가져오기
-	const reward = celebrationData?.reward;
 	// 축하 모달이 열릴 때 파티클 효과 실행
 	useEffect(() => {
-		if (celebrationVisible && celebrationData) {
-			// 최종 완료 메시지인 경우에만 파티클 효과 실행
-			const isFinalMessage = FINAL_MESSAGES.some(
-				(message) => message.title === celebrationData.title,
-			);
-
-			setShowParticleEffect(isFinalMessage);
-			if (isFinalMessage) {
-				if (reward) {
-					setShowRewardPopup(true);
-				}
-			}
-		} else {
-			setShowParticleEffect(false);
+		if (!celebrationVisible || !celebrationData) {
+			return;
 		}
+
+		const isFinalMessage = FINAL_MESSAGES.some(
+			(message) => message.title === celebrationData.title,
+		);
+
+		// 최종 완료 메시지인 경우에만 파티클 효과 실행
+		if (!isFinalMessage) return;
+		setShowParticleEffect(isFinalMessage);
+
+		// 보상이 있는 경우에만 보상 팝업 표시
+		const rewardData = celebrationData?.reward;
+		if (!rewardData) return;
+
+		setReward(rewardData);
 	}, [celebrationVisible, celebrationData]);
 
 	const handleClose = () => {
@@ -48,73 +43,47 @@ const CelebrationModal: FC = ({}) => {
 		if (showParticleEffect) return;
 
 		setShowParticleEffect(false);
-		setShowRewardPopup(false);
-		setCelebrationVisible(false);
+		clearCelebration();
 	};
 
 	const handleRewardOpen = () => {
-		setRewardModalVisible(true);
+		handleClose();
+		setRewardModalVisible(true); // 보상 모달 열기
 	};
 
 	return (
-		<Modal
-			isVisible={celebrationVisible}
-			animationIn='fadeIn'
-			animationOut='fadeOut'
-			backdropOpacity={0.5}
-			onModalHide={clearCelebration}
-			useNativeDriver={true}
-			hideModalContentWhileAnimating={true}
-		>
+		<CustomModal isVisible={celebrationVisible} backdropOpacity={0.5}>
 			<View style={styles.overlay}>
 				<View style={styles.celebrationContent}>
 					<View style={styles.celebrationIcon}>
-						<Text style={styles.celebrationIconText}>
-							{celebrationData?.icon}
-						</Text>
+						<Text style={styles.celebrationIconText}>{celebrationData?.icon}</Text>
 					</View>
 					<Text style={styles.celebrationTitle}>{celebrationData?.title}</Text>
 					{celebrationData?.subtitle && (
-						<Text style={styles.celebrationSubtitle}>
-							{celebrationData.subtitle}
-						</Text>
+						<Text style={styles.celebrationSubtitle}>{celebrationData.subtitle}</Text>
 					)}
-					<Text style={styles.celebrationDescription}>
-						{celebrationData?.description}
-					</Text>
+					<Text style={styles.celebrationDescription}>{celebrationData?.description}</Text>
 					{!showParticleEffect && (
 						<TouchableOpacity
 							style={[
 								styles.celebrationButton,
 								{
-									backgroundColor: showRewardPopup
-										? COLORS.secondary
-										: COLORS.primary,
+									backgroundColor: reward ? COLORS.secondary : COLORS.primary,
 								},
 							]}
-							onPress={showRewardPopup ? handleRewardOpen : handleClose}
+							onPress={reward ? handleRewardOpen : handleClose}
 						>
-							<Text style={styles.celebrationButtonText}>
-								{showRewardPopup ? '보상 열기' : '계속하기'}
-							</Text>
+							<Text style={styles.celebrationButtonText}>{reward ? '보상 열기' : '계속하기'}</Text>
 						</TouchableOpacity>
 					)}
 				</View>
 			</View>
 
-			{/* 파티클 효과 */}
 			<ParticleEffect
 				showParticleEffect={showParticleEffect}
 				onComplete={() => setShowParticleEffect(false)}
 			/>
-
-			{/* 보상 팝업 */}
-			<RewardModal
-				visible={rewardModalVisible}
-				reward={reward || ''}
-				onClose={handleClose}
-			/>
-		</Modal>
+		</CustomModal>
 	);
 };
 
@@ -128,8 +97,8 @@ const styles = StyleSheet.create({
 		borderRadius: 18,
 		padding: 40,
 		alignItems: 'center',
+		minWidth: 240,
 		maxWidth: 280,
-		width: '90%',
 	},
 	celebrationIcon: {
 		width: 80,
