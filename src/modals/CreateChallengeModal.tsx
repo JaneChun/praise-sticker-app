@@ -4,7 +4,6 @@ import BottomSheet, {
 	BottomSheetScrollView,
 	BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import { Portal } from '@gorhom/portal';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -14,7 +13,6 @@ import {
 	Keyboard,
 	KeyboardAvoidingView,
 	Platform,
-	Pressable,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -27,7 +25,7 @@ import { useChallengeForm } from '../hooks/useChallengeForm';
 import { createChallenge, updateChallenge } from '../services/challengeService';
 
 import EmojiSelector from 'react-native-emoji-selector';
-import Modal from 'react-native-modal';
+import CustomModal from '../components/CustomModal';
 import { useChallengeStore } from '../store';
 import { CreateChallengeModalProps } from '../types';
 
@@ -165,57 +163,29 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	return (
 		<>
 			{showEmojiSelector && (
-				<>
-					{Platform.OS === 'ios' && (
-						<Modal
-							isVisible={showEmojiSelector}
-							animationIn='fadeIn'
-							animationOut='fadeOut'
-							onBackdropPress={() => setShowEmojiSelector(false)}
-							backdropOpacity={0.5}
-						>
-							<View style={styles.emojiSelectorContainer}>
-								<EmojiSelector
-									onEmojiSelected={(emoji) => {
-										setSelectedIcon(emoji);
-										setShowEmojiSelector(false);
-									}}
-									showSearchBar={false}
-									showHistory={false}
-									showTabs={false}
-									showSectionTitles={false}
-									columns={7}
-								/>
-							</View>
-						</Modal>
-					)}
-
-					{Platform.OS === 'android' && (
-						<Portal>
-							<Pressable
-								style={styles.emojiSelectorBackdrop}
-								onPress={() => setShowEmojiSelector(false)}
-							>
-								<Pressable
-									style={[styles.emojiSelectorContainer, { width: '80%' }]}
-									onPress={(e) => e.stopPropagation()}
-								>
-									<EmojiSelector
-										onEmojiSelected={(emoji) => {
-											setSelectedIcon(emoji);
-											setShowEmojiSelector(false);
-										}}
-										showSearchBar={false}
-										showHistory={false}
-										showTabs={false}
-										showSectionTitles={false}
-										columns={7}
-									/>
-								</Pressable>
-							</Pressable>
-						</Portal>
-					)}
-				</>
+				<CustomModal
+					visible={showEmojiSelector}
+					onClose={() => setShowEmojiSelector(false)}
+				>
+					<View
+						style={[
+							styles.emojiSelectorContainer,
+							Platform.OS === 'android' && { width: '80%' },
+						]}
+					>
+						<EmojiSelector
+							onEmojiSelected={(emoji) => {
+								setSelectedIcon(emoji);
+								setShowEmojiSelector(false);
+							}}
+							showSearchBar={false}
+							showHistory={false}
+							showTabs={false}
+							showSectionTitles={false}
+							columns={7}
+						/>
+					</View>
+				</CustomModal>
 			)}
 
 			<BottomSheet
@@ -468,17 +438,6 @@ const styles = StyleSheet.create({
 	emojiText: {
 		fontSize: 30,
 		color: COLORS.text.secondary,
-	},
-	emojiSelectorBackdrop: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-		backgroundColor: 'rgba(0, 0, 0, 0.5)',
-		justifyContent: 'center',
-		alignItems: 'center',
-		zIndex: 1000,
 	},
 	emojiSelectorContainer: {
 		height: '50%',

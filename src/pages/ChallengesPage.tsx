@@ -1,3 +1,4 @@
+import { runTestScenario } from '@/utils/testDataUtils';
 import { Entypo } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -5,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useCallback, useState } from 'react';
 import {
 	Alert,
+	Button,
 	ColorValue,
 	ScrollView,
 	StyleSheet,
@@ -165,7 +167,7 @@ const ChallengesPage: FC = () => {
 				</View>
 			</ScrollView>
 
-			{/* <Button title='test' onPress={() => runTestScenario()} /> */}
+			<Button title='test' onPress={() => runTestScenario()} />
 
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity
