@@ -160,7 +160,7 @@ const ChallengesPage: FC = () => {
 
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity
-				style={[styles.floatingButton, { bottom: insets.bottom }]}
+				style={[styles.floatingButton, { bottom: 30 }]}
 				onPress={() => setCreateChallengeVisible(true)}
 			>
 				<Entypo name='plus' size={32} color={COLORS.text.white} />
