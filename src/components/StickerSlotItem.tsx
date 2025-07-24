@@ -107,13 +107,7 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 
 			handleDragEnd();
 		},
-		[
-			isDragging,
-			isInTodayStickerArea,
-			removeStickerFromGrid,
-			handleDragEnd,
-			index,
-		],
+		[isDragging, isInTodayStickerArea, removeStickerFromGrid, handleDragEnd, index],
 	);
 
 	// 슬롯 스티커 PanResponder
@@ -140,20 +134,14 @@ const StickerSlotItem: FC<StickerSlotItemProps> = ({
 		>
 			{sticker ? (
 				<Animated.View
-					style={[
-						styles.touchableArea,
-						isDraggingSticker && styles.slotStickerDragging,
-					]}
+					style={[styles.touchableArea, isDraggingSticker && styles.slotStickerDragging]}
 					onLayout={(event) => onLayout(index, event)}
 					{...slotStickerPanResponder.panHandlers}
 				>
 					<StickerRenderer sticker={sticker.sticker} size={SIZES.stickerSlot} />
 				</Animated.View>
 			) : (
-				<View
-					style={styles.touchableArea}
-					onLayout={(event) => onLayout(index, event)}
-				>
+				<View style={styles.touchableArea} onLayout={(event) => onLayout(index, event)}>
 					<Text style={styles.stickerSlotNumber}>{index + 1}</Text>
 				</View>
 			)}

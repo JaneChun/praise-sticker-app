@@ -1,17 +1,9 @@
 import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
-import { Animated } from 'react-native';
-import {
-	LayoutEvent,
-	Rect,
-	Sticker,
-	StickerGridItem,
-	UseStickerDragReturn,
-} from '../types';
+import { Animated, Platform } from 'react-native';
+import { LayoutEvent, Rect, Sticker, StickerGridItem, UseStickerDragReturn } from '../types';
 
-export const useStickerDrag = (
-	stickerGrid: StickerGridItem[],
-): UseStickerDragReturn => {
+export const useStickerDrag = (stickerGrid: StickerGridItem[]): UseStickerDragReturn => {
 	// 드래그 관련 상태
 	const [isDragging, setIsDragging] = useState<boolean>(false);
 	const [draggingSticker, setDraggingSticker] = useState<Sticker | null>(null); // 현재 드래그 되고 있는 스티커
@@ -59,7 +51,11 @@ export const useStickerDrag = (
 			return false;
 		}
 
-		const targetSlotIndex = getSlotIndexFromPosition(x, y);
+		// 플랫폼별 좌표 보정
+		const adjustedX = Platform.OS === 'android' ? x - 15 : x;
+		const adjustedY = Platform.OS === 'android' ? y - 30 : y;
+
+		const targetSlotIndex = getSlotIndexFromPosition(adjustedX, adjustedY);
 
 		return targetSlotIndex === nextSlotIndex;
 	};
@@ -70,21 +66,21 @@ export const useStickerDrag = (
 			return false;
 		}
 
+		// 플랫폼별 좌표 보정
+		const adjustedX = Platform.OS === 'android' ? x - 15 : x;
+		const adjustedY = Platform.OS === 'android' ? y - 30 : y;
+
 		const pos = todayStickerPosition.current;
 		return (
-			x >= pos.x &&
-			x <= pos.x + pos.width &&
-			y >= pos.y &&
-			y <= pos.y + pos.height
+			adjustedX >= pos.x &&
+			adjustedX <= pos.x + pos.width &&
+			adjustedY >= pos.y &&
+			adjustedY <= pos.y + pos.height
 		);
 	};
 
 	// 🔸 오늘의 스티커 드래그 시작 핸들러
-	const handleTodayStickerDragStart = (
-		x: number,
-		y: number,
-		sticker: Sticker,
-	): void => {
+	const handleTodayStickerDragStart = (x: number, y: number, sticker: Sticker): void => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
 		setIsDragging(true);
@@ -94,11 +90,7 @@ export const useStickerDrag = (
 	};
 
 	// 🔹 슬롯 스티커 드래그 시작 핸들러
-	const handleSlotStickerDragStart = (
-		x: number,
-		y: number,
-		sticker: Sticker,
-	): void => {
+	const handleSlotStickerDragStart = (x: number, y: number, sticker: Sticker): void => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
 		setIsDragging(true);
@@ -139,9 +131,7 @@ export const useStickerDrag = (
 
 			const centerX = slot.x + slot.width / 2;
 			const centerY = slot.y + slot.height / 2;
-			const distance = Math.sqrt(
-				Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2),
-			);
+			const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
 			if (distance < closestDistance && distance < maxDistance) {
 				closestDistance = distance;
