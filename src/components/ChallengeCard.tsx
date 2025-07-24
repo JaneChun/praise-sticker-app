@@ -60,7 +60,11 @@ const ChallengeCard: FC<ChallengeCardProps> = ({
 			onLongPress={onLongPress}
 		>
 			<Text style={styles.challengeIcon}>{challenge?.icon}</Text>
-			<Text numberOfLines={2} ellipsizeMode='tail' style={styles.challengeTitle}>
+			<Text
+				numberOfLines={currentView === 'card' ? 2 : 1}
+				ellipsizeMode='tail'
+				style={styles.challengeTitle}
+			>
 				{challenge?.title || 'Unknown'}
 			</Text>
 
