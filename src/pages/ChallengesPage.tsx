@@ -1,4 +1,3 @@
-import { runTestScenario } from '@/utils/testDataUtils';
 import { Entypo } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -6,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useCallback, useState } from 'react';
 import {
 	Alert,
-	Button,
 	ColorValue,
 	ScrollView,
 	StyleSheet,
@@ -37,12 +35,8 @@ const ChallengesPage: FC = () => {
 		loadChallenges,
 	} = useChallengeStore();
 
-	const setCreateChallengeVisible = useUIStore(
-		(state) => state.setCreateChallengeVisible,
-	);
-	const setEditChallengeVisible = useUIStore(
-		(state) => state.setEditChallengeVisible,
-	);
+	const setCreateChallengeVisible = useUIStore((state) => state.setCreateChallengeVisible);
+	const setEditChallengeVisible = useUIStore((state) => state.setEditChallengeVisible);
 	const { resetDatabase, isInitialized } = useDatabaseStore();
 
 	const insets = useSafeAreaInsets();
@@ -140,9 +134,7 @@ const ChallengesPage: FC = () => {
 					<View style={styles.headerTop}>
 						<View>
 							<Text style={styles.headerTitle}>칭찬 스티커판</Text>
-							<Text style={styles.headerSubtitle}>
-								작은 성취도 소중한 발걸음이에요
-							</Text>
+							<Text style={styles.headerSubtitle}>작은 성취도 소중한 발걸음이에요</Text>
 						</View>
 						<ViewToggle />
 					</View>
@@ -150,10 +142,7 @@ const ChallengesPage: FC = () => {
 
 				<View style={styles.challengesGrid}>
 					{challenges.length === 0 && (
-						<ChallengeCard
-							isNew={true}
-							onPress={() => setCreateChallengeVisible(true)}
-						/>
+						<ChallengeCard isNew={true} onPress={() => setCreateChallengeVisible(true)} />
 					)}
 					{challenges?.map((challenge) => (
 						<ChallengeCard
@@ -167,7 +156,7 @@ const ChallengesPage: FC = () => {
 				</View>
 			</ScrollView>
 
-			<Button title='test' onPress={() => runTestScenario()} />
+			{/* <Button title='test' onPress={() => runTestScenario()} /> */}
 
 			{/* 플로팅 버튼 */}
 			<TouchableOpacity

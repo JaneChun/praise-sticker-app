@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginBottom: 16,
+		backgroundColor: COLORS.background.primary,
 	},
 	newChallenge: {
 		backgroundColor: COLORS.background.secondary,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
 		backgroundColor: COLORS.secondary,
 	},
 	challengeCompleted: {
-		backgroundColor: COLORS.primary_opacity,
+		backgroundColor: COLORS.primary_light,
 		borderWidth: 2,
 		borderColor: COLORS.primary,
 	},
