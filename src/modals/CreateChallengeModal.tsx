@@ -4,7 +4,6 @@ import BottomSheet, {
 	BottomSheetScrollView,
 	BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -12,7 +11,6 @@ import {
 	ColorValue,
 	Keyboard,
 	KeyboardAvoidingView,
-	Platform,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -24,7 +22,9 @@ import { CHALLENGE_DURATIONS } from '../constants/data';
 import { useChallengeForm } from '../hooks/useChallengeForm';
 import { createChallenge, updateChallenge } from '../services/challengeService';
 
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import EmojiSelector from 'react-native-emoji-selector';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomModal from '../components/CustomModal';
 import { useChallengeStore } from '../store';
 import { CreateChallengeModalProps } from '../types';
@@ -38,6 +38,7 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 	const { loadChallenges } = useChallengeStore();
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const bottomTabBarHeight = useBottomTabBarHeight();
+	const insets = useSafeAreaInsets();
 
 	const [showEmojiSelector, setShowEmojiSelector] = useState<boolean>(false);
 
@@ -190,15 +191,12 @@ const CreateChallengeModal: FC<CreateChallengeModalProps> = ({
 				backdropComponent={renderBackdrop}
 				handleComponent={renderHandle}
 				style={styles.container}
-				keyboardBehavior='extend'
-				keyboardBlurBehavior='restore'
-				android_keyboardInputMode='adjustResize'
 			>
 				<BottomSheetView style={styles.contentContainer}>
 					<KeyboardAvoidingView
 						style={{ flex: 1 }}
-						behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-						keyboardVerticalOffset={bottomTabBarHeight + 20}
+						behavior='padding'
+						keyboardVerticalOffset={bottomTabBarHeight + insets.bottom}
 					>
 						<LinearGradient
 							colors={COLORS.gradients.primary as [ColorValue, ColorValue]}

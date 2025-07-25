@@ -18,6 +18,7 @@ const TabNavigator: FC = () => {
 		<Tab.Navigator
 			screenOptions={{
 				headerShown: false,
+				tabBarHideOnKeyboard: true,
 				tabBarActiveTintColor: COLORS.primary,
 				tabBarInactiveTintColor: COLORS.text.secondary,
 				tabBarStyle: {
