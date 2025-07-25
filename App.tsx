@@ -1,10 +1,10 @@
 import { PortalProvider } from '@gorhom/portal';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-get-random-values';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import StackNavigator from './src/navigation/StackNavigator';
 import { useChallengeStore, useDatabaseStore } from './src/store';
 
@@ -32,16 +32,12 @@ const App = () => {
 		<GestureHandlerRootView style={styles.container}>
 			<PortalProvider>
 				<SafeAreaProvider>
-					<View style={styles.container}>
-						<StatusBar
-							barStyle='light-content'
-							backgroundColor='transparent'
-							translucent
-						/>
+					<SafeAreaView style={styles.container} edges={['bottom']}>
+						<StatusBar barStyle='light-content' backgroundColor='transparent' translucent />
 						<NavigationContainer>
 							<StackNavigator />
 						</NavigationContainer>
-					</View>
+					</SafeAreaView>
 				</SafeAreaProvider>
 			</PortalProvider>
 		</GestureHandlerRootView>

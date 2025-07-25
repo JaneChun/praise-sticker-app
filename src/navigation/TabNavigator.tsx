@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FC } from 'react';
-import { Text } from 'react-native';
+import { Platform } from 'react-native';
 import { COLORS } from '../constants/colors';
 import CalendarScreen from '../screens/CalendarScreen';
 import ChallengesScreen from '../screens/ChallengesScreen';
@@ -21,14 +21,15 @@ const TabNavigator: FC = () => {
 				tabBarActiveTintColor: COLORS.primary,
 				tabBarInactiveTintColor: COLORS.text.secondary,
 				tabBarStyle: {
-					paddingVertical: 8,
-					paddingBottom: 20,
-					height: 80,
+					height: 60,
+				},
+				tabBarIconStyle: {
+					marginTop: 4,
 				},
 				tabBarLabelStyle: {
 					fontSize: 12,
 					fontWeight: '600',
-					paddingTop: 2,
+					paddingTop: Platform.OS === 'ios' ? 4 : 0,
 				},
 			}}
 		>
@@ -38,13 +39,7 @@ const TabNavigator: FC = () => {
 				options={{
 					tabBarLabel: '스티커',
 					tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-						<Text style={{ fontSize: size, color }}>
-							<MaterialCommunityIcons
-								name='sticker-circle-outline'
-								size={size}
-								color={color}
-							/>
-						</Text>
+						<MaterialCommunityIcons name='sticker-circle-outline' size={size} color={color} />
 					),
 				}}
 			/>
@@ -54,13 +49,7 @@ const TabNavigator: FC = () => {
 				options={{
 					tabBarLabel: '캘린더',
 					tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-						<Text style={{ fontSize: size, color }}>
-							<MaterialCommunityIcons
-								name='calendar-blank-outline'
-								size={size}
-								color={color}
-							/>
-						</Text>
+						<MaterialCommunityIcons name='calendar-blank-outline' size={size} color={color} />
 					),
 				}}
 			/>
