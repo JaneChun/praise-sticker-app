@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 		borderWidth: 2,
 		borderColor: COLORS.border.primary,
-		borderRadius: 20,
+		borderRadius: 30,
 		backgroundColor: COLORS.background.primary,
 		marginRight: 8,
 		marginBottom: 8,

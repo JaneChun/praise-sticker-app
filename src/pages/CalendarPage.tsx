@@ -11,7 +11,7 @@ import { useUIStore } from '../store/useUIStore';
 
 const CalendarPage: FC = () => {
 	const { weeklyStickerCnt, streakCnt, markedDates, refresh } = useCalendar();
-	const setDayDetailVisible = useUIStore(state => state.setDayDetailVisible);
+	const setDayDetailVisible = useUIStore((state) => state.setDayDetailVisible);
 
 	const insets = useSafeAreaInsets();
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -47,7 +47,7 @@ const CalendarPage: FC = () => {
 				<View style={styles.statsGrid}>
 					<View style={styles.statItem}>
 						<Text style={styles.statNumber}>{weeklyStickerCnt}</Text>
-						<Text style={styles.statLabel}>이번주 모은 스티커</Text>
+						<Text style={styles.statLabel}>{'이번주 모은\n스티커'}</Text>
 					</View>
 
 					<View style={styles.statItem}>
@@ -89,10 +89,7 @@ const CalendarPage: FC = () => {
 			</View>
 
 			{selectedDate && (
-				<DayDetailModal
-					selectedDate={selectedDate}
-					onClose={() => setSelectedDate(null)}
-				/>
+				<DayDetailModal selectedDate={selectedDate} onClose={() => setSelectedDate(null)} />
 			)}
 		</ScrollView>
 	);
